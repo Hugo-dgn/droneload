@@ -23,7 +23,7 @@ def _gram_shmitt(v):
     T = np.column_stack((e1/np.linalg.norm(e1), e2/np.linalg.norm(e2), e3/np.linalg.norm(e3)))
 
     if np.linalg.det(T) < 0:
-        Q = Q @ np.array([  [1, 0, 0],
+        T = T @ np.array([  [1, 0, 0],
                             [0, -1, 0],
                             [0, 0, 1]])
     return T
@@ -40,8 +40,8 @@ class Window:
                                [0, -np.sin(theta), np.cos(theta)]])
 
     def get_corner(self):
-        fact_e2 = self.scale/2
-        fact_e3 = 1/(2*self.scale)
+        fact_e2 = self.scale/2*self.norme
+        fact_e3 = 1/(2*self.scale)*self.norme
         top_r = fact_e2*e_2 + fact_e3*e_3
         top_l = fact_e2*e_2 - fact_e3*e_3
         bottom_r = -fact_e2*e_2 + fact_e3*e_3

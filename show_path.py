@@ -1,56 +1,102 @@
 import window
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.animation import FuncAnimation
+from locals import *
+import loss
+#calcule des paramètre imposés
 
-###############
-#paramètre de la fenetre
+x1 = x0+L*direction_win/np.linalg.norm(direction_win)
+v1 = v_win/np.linalg.norm(v_win)*norme_v1
+win = window.Window(x1, v_win, scale, theta)
+#########
 
-x = [4, 4, 4]
-v = np.array([0.1, 0, 0])
-scale = 1
-theta = 0
+#########
+#calucule la trajectoire
 
-###############
+t, val_u = window.get_path(x0, x1, v0, v1, a0, a1, L, T, n_point)
 
-###############
-#position et direction initiales
+val_v = np.gradient(np.transpose(val_u), T/n_point)[0]
+norme_val_v = np.linalg.norm(val_v, axis=1)
 
-x1 = [0, 0, 0]
+#########
 
-v2_norme = 1.5
+#########
+#print les loss
 
-###############
+print(f"loss={loss.loss(t, val_u, L, T)}")
+print("")
+print(f"loss_max_v={loss.loss_max_v(t, val_u, L, T)}")
+print(f"loss_max_a={loss.loss_max_a(t, val_u, L, T)}")
+print(f"loss_max_v_a{loss.loss_max_v_a(t, val_u, L, T)}")
+print(f"loss_id_v_dist={loss.loss_id_v_dist(t, val_u, L, T)}")
 
-x2 = x
+#########
 
-v1 = np.array(x2) - np.array(x1)
-v2 = v/np.linalg.norm(v)*v2_norme
+#########
+#plot u
 
-win = window.Window(x, v, scale, theta)
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+def define_animation(x, y, z):
+
+    # Création de la figure et du plot 3D
+    line, = ax.plot(x, y, z)
+    point, = ax.plot([x[0]], [y[0]], [z[0]], 'ro')
+
+    # Fonction d'animation
+    def animate(i):
+        point.set_data([x[i]], [y[i]])
+        point.set_3d_properties(z[i])
+        return line, point,
+
+    return animate
+
+animate = define_animation(val_u[0,:], val_u[1,:], val_u[2,:])
+ani = FuncAnimation(fig, animate, frames=n_point, interval=T/n_point*1000)
+
+#ax.plot3D(val_u[:,0], val_u[:,1], val_u[:,2], 'red')
+
+#########
+
+#########
+#plot la fenètre
 
 corner = win.get_corner()
 corner = np.column_stack([corner[:,0], corner[:,1], corner[:,2], corner[:,3], corner[:,0]])
 corner = corner.transpose()
 
-u = window.get_path(x1, x2, v1, v2)
 
-T = np.linspace(0, 1, 1000)
-Y = np.array([u(t) for t in T])
+ax.plot3D(corner[:,0], corner[:,1], corner[:,2], 'green')
 
-fig = plt.figure()
+#########
 
-ax = plt.axes(projection="3d")
+#########
+#enregistre l'animation
 
-x=Y[:,0]
-y=Y[:,1]
-z=Y[:,2]
+ani.save("data/animation.gif", writer="pillow")
 
-ax.plot3D(x, y, z, 'red')
+#########
 
-ax.plot3D(corner[:,0], corner[:,1], corner[:,2], 'blue')
+#########
+#plot v
 
-ax.set_xlabel('X')
-ax.set_ylabel('Y')
-ax.set_zlabel('Z')
+plt.figure()
+
+plt.subplot(2, 2, 1)
+plt.plot(t, norme_val_v)
+
+plt.subplot(2, 2, 2)
+plt.plot(t, val_v[:,0])
+
+plt.subplot(2, 2, 3)
+plt.plot(t, val_v[:,1])
+
+plt.subplot(2, 2, 4)
+plt.plot(t, val_v[:,2])
+
+#########
 
 plt.show()
+
