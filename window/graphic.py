@@ -22,43 +22,66 @@ def plot_analyse_direction_constante(Loss, L_loss_lenght, L_loss_max_v, L_id_v_d
     plt.ylabel(f"T (s)")
     plt.title('loss', fontsize=8)
 
+    if L_loss_lenght is not None:
+        plt.figure()
+
+        plt.subplot(2, 2, 1)
+
+        plt.imshow(L_loss_lenght, norm=LogNorm(), extent=[L_min, L_max, T_min, T_max])
+
+        plt.colorbar()
+        plt.xlabel(f"L (m)")
+        plt.ylabel(f"T (s)")
+        plt.title('loss_lenght', fontsize=8)
+
+        plt.subplot(2, 2, 2)
+
+        plt.imshow(L_loss_max_v, norm=LogNorm(), extent=[L_min, L_max, T_min, T_max])
+
+        plt.colorbar()
+        plt.xlabel(f"L (m)")
+        plt.ylabel(f"T (s)")
+        plt.title('max_v', fontsize=8)
+
+        plt.subplot(2, 2, 3)
+
+        plt.imshow(L_id_v_dist, norm=LogNorm(), extent=[L_min, L_max, T_min, T_max])
+
+        plt.colorbar()
+        plt.xlabel(f"L (m)")
+        plt.ylabel(f"T (s)")
+        plt.title('id_dist', fontsize=8)
+
+        plt.subplot(2, 2, 4)
+
+        plt.imshow(L_max_a, norm=LogNorm(), extent=[L_min, L_max, T_min, T_max])
+
+        plt.colorbar()
+        plt.xlabel(f"L (m)")
+        plt.ylabel(f"T (t)")
+        plt.title('max_a', fontsize=8)
+
+    plt.show()
+
+def plot_analyse_total(Loss_angle, n_angle_phi, n_angle_theta):
     plt.figure()
 
-    plt.subplot(2, 2, 1)
+    plt.imshow(Loss_angle, norm=LogNorm(), extent=[-np.pi, np.pi, -np.pi/2, np.pi/2])
 
-    plt.imshow(L_loss_lenght, norm=LogNorm(), extent=[L_min, L_max, T_min, T_max])
+    i = np.unravel_index(np.argmin(Loss_angle), Loss_angle.shape)
 
-    plt.colorbar()
-    plt.xlabel(f"L (m)")
-    plt.ylabel(f"T (s)")
-    plt.title('loss_lenght', fontsize=8)
-
-    plt.subplot(2, 2, 2)
-
-    plt.imshow(L_loss_max_v, norm=LogNorm(), extent=[L_min, L_max, T_min, T_max])
-
-    plt.colorbar()
-    plt.xlabel(f"L (m)")
-    plt.ylabel(f"T (s)")
-    plt.title('max_v', fontsize=8)
-
-    plt.subplot(2, 2, 3)
-
-    plt.imshow(L_id_v_dist, norm=LogNorm(), extent=[L_min, L_max, T_min, T_max])
+    print(f"minimal loss = {Loss_angle[i]}")
+    phi_min = -np.pi + (n_angle_phi-i[0]-1)*(2*np.pi)/n_angle_phi
+    theta_min = -np.pi/2 + i[1]*(np.pi)/n_angle_theta
+    direction_win = np.array([np.cos(phi_min)*np.cos(theta_min), np.sin(phi_min)*np.cos(theta_min), np.sin(theta_min)])
+    print(f"phi = {phi_min}")
+    print(f"theta = {theta_min}")
+    print(f"direction = {direction_win}")
 
     plt.colorbar()
-    plt.xlabel(f"L (m)")
-    plt.ylabel(f"T (s)")
-    plt.title('id_dist', fontsize=8)
-
-    plt.subplot(2, 2, 4)
-
-    plt.imshow(L_max_a, norm=LogNorm(), extent=[L_min, L_max, T_min, T_max])
-
-    plt.colorbar()
-    plt.xlabel(f"L (m)")
-    plt.ylabel(f"T (t)")
-    plt.title('max_a', fontsize=8)
+    plt.xlabel(f"phi (rad)")
+    plt.ylabel(f"theta (rad)")
+    plt.title('loss', fontsize=8)
 
     plt.show()
 
