@@ -2,6 +2,7 @@ import argparse
 import window
 import numpy as np
 from locals import *
+import video
 
 
 
@@ -10,12 +11,17 @@ def main():
                     prog = '',
                     description = '')
     parser.add_argument('task', type=str,
-                        choices=["window"])
+                        choices=["window",
+                                 "video"])
     
     parser.add_argument('--loss', default=False, action="store_true")
     parser.add_argument('--all', default=False, action="store_true")
     parser.add_argument('--total', default=False, action="store_true")
     parser.add_argument('--path', default=False, action="store_true")
+
+    parser.add_argument('--contours', default=False, action="store_true")
+    parser.add_argument('--rect', default=False, action="store_true")
+    parser.add_argument('--arrows', default=False, action="store_true")
     
     parser.add_argument('vars', nargs='*')
     args = parser.parse_args()
@@ -31,7 +37,11 @@ def main():
 
         elif args.path:
             window.plot_path(L, T, x0, v0, a0, a1, norme_v1, direction_win, v_win,scale, theta, n_point)
-    
+    elif args.task == "video":
+        if args.contours:
+            video.video_contours()
+        if args.rect:
+            video.video_rectangle(args.arrows)
 
 if __name__ == "__main__":
     main()

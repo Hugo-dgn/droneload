@@ -8,6 +8,7 @@ iniconfig==2.0.0
 kiwisolver==1.4.4
 matplotlib==3.7.1
 numpy==1.24.0
+opencv-python==4.7.0.72
 packaging==23.1
 Pillow==9.5.0
 pluggy==1.0.0
