@@ -3,15 +3,21 @@ import video.process as process
 import numpy as np
 import video.rectangle_analysis as rectangle_analysis
 
+import time
+
 def video_contours():
     cap = cv2.VideoCapture(0)
     while True:
         ret, frame = cap.read()
         
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        contours = process.get_contours_sobel(image)
+        
+        pool_size = 3
+        if pool_size > 1:
+            image = image[::pool_size, ::pool_size]
 
-        cv2.imshow('Contours', contours.astype(np.uint8))
+        contours = process.get_contours_sobel(image)
+        cv2.imshow('Contours', np.kron(contours, np.ones((pool_size, pool_size))))
 
         if cv2.waitKey(50) == ord('q'):
             break
@@ -25,10 +31,15 @@ def video_rectangle(draw_arrow=True):
         ret, frame = cap.read()
         
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        contours = process.get_contours_sobel(image)
-        rects = process.find_rectangle(contours)
 
-        rects = np.int0(rects)
+        pool_size = 3
+        if pool_size > 1:
+            image = image[::pool_size, ::pool_size]
+
+        contours = process.get_contours_sobel(image)
+
+        rects = pool_size*process.find_rectangle(contours)
+
         for rect in rects:
             pts = rect.reshape((-1, 1, 2))
             cv2.polylines(frame, [pts], True, (0, 255, 0), 2)
@@ -38,9 +49,7 @@ def video_rectangle(draw_arrow=True):
                 midpoint = midpoint.astype(np.int32)
                 normale = normale.astype(np.int32)
                 cv2.arrowedLine(frame, midpoint, midpoint+normale[0:2], (0, 255, 0), thickness=2, tipLength=0.2)
-
         cv2.imshow('Contours', frame)
-
         if cv2.waitKey(100) == ord('q'):
             break
     
