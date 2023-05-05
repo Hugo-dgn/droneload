@@ -40,6 +40,9 @@ def get_path_torch(x0, x1, v0, v1, a0, a1, L, T, n_point):
 
     X = torch.stack([x0_ad, x1_ad, v0_ad, v1_ad, a0_ad, a1_ad])
 
+    print(X.device)
+    print(A_inv.device)
+
     Y = torch.matmul(A_inv, X)
 
     if t is None or t.shape[0] != n_point:

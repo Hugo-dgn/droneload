@@ -28,7 +28,7 @@ def analyse_direction_constante_torch(L_min, L_max, T_min, T_max, n_T, n_L, x0, 
     L_T_grid = get_L_T_grid(X, Y)
 
     Loss = torch.zeros((n_T, n_L))
-    v1 = v_win/torch.linalg.norm(v_win.float())*norme_v1
+    v1 = v_win.to(device)/torch.linalg.norm(v_win.float())*norme_v1
 
     norme_direction_win = torch.linalg.norm(direction_win.float())
 
