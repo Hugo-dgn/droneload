@@ -48,4 +48,4 @@ def get_path_torch(x0, x1, v0, v1, a0, a1, L, T, n_point):
 
     U = L*torch.matmul(torch.transpose(Y, 0, 1), M)
 
-    return T*t, U
+    return T*t.to("cpu"), U.to("cpu")

@@ -24,7 +24,7 @@ a1 = np.array([0, 0, 0])
 
 L = 1.8
 T = 2.4
-n_point = 100000
+n_point = 100
 
 conv_L_m = 1
 conv_T_s = 1
