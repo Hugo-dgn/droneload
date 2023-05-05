@@ -100,12 +100,12 @@ def plot_path(L, T, x0, v0, a0, a1, norme_v1, direction_win, v_win,scale, theta,
     #########
     #calucule la trajectoire
     if use_torch:
-        x0 = torch.tensor(x0)
-        x1 = torch.tensor(x1)
-        v0 = torch.tensor(v0)
-        v1 = torch.tensor(v1)
-        a0 = torch.tensor(a0)
-        a1 = torch.tensor(a1)
+        x0 = torch.tensor(x0, dtype=torch.float)
+        x1 = torch.tensor(x1, dtype=torch.float)
+        v0 = torch.tensor(v0, dtype=torch.float)
+        v1 = torch.tensor(v1, dtype=torch.float)
+        a0 = torch.tensor(a0, dtype=torch.float)
+        a1 = torch.tensor(a1, dtype=torch.float)
         t, val_u = get_path_torch(x0, x1, v0, v1, a0, a1, L, T, n_point)
         t = t.numpy()
         val_u = val_u.numpy()

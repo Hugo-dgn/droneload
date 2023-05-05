@@ -1,7 +1,6 @@
 import numpy as np
 import window.loss as loss
 from window.path import get_path
-import time
 
 def get_L_T_grid(X, Y):
     M = np.stack((X, Y), axis=2)
@@ -82,4 +81,3 @@ def analyse(L_min, L_max, T_min, T_max, n_T, n_L, x0, v0, a0, a1, v_win, norme_v
 
     A = np.apply_along_axis(calcul_loss, 2, A)[::-1]
     return A
-

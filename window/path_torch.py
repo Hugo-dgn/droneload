@@ -6,13 +6,13 @@ else:
     device = torch.device("cpu") 
 
 def find_dvice_cuda():
-    print(device)
+    return device
 
 t = None
 M = None
 def define_t(n_point):
     global t
-    t = torch.linspace(0, 1, n_point).double()
+    t = torch.linspace(0, 1, n_point).float()
 
 def define_M(t):
     global M
@@ -23,7 +23,7 @@ A = torch.tensor([[0, 0, 0, 0, 0, 1],
                   [0, 0, 0, 0, 1, 0],
                   [5, 4, 3, 2, 1, 0],
                   [0, 0, 0, 2, 0, 0],
-                  [20, 12, 6, 2, 0, 0]], dtype=torch.double)
+                  [20, 12, 6, 2, 0, 0]], dtype=torch.float)
 
 A_inv = torch.linalg.inv(A)
 

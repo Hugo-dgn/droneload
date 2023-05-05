@@ -24,6 +24,7 @@ def main():
     parser.add_argument('--arrows', default=False, action="store_true")
 
     parser.add_argument('--torch', default=False, action="store_true")
+    parser.add_argument('--save', default=False, action="store_true")
 
     
     
@@ -31,7 +32,7 @@ def main():
     args = parser.parse_args()
 
     if args.torch:
-        print(window.find_dvice_cuda())
+        print(f"torch is running on {window.find_dvice_cuda()}")
 
     if args.task == "window":
         if args.loss:
@@ -39,8 +40,16 @@ def main():
                 A = window.analyse(L_min, L_max, T_min, T_max, n_T, n_L, x0, v0, a0, a1, v_win, norme_v1, conv_L_m, conv_T_s,  n_point, n_angle_phi, n_angle_theta)
                 window.plot_analyse_total(A, n_angle_phi, n_angle_theta)
             else:
-                Loss, L_loss_max_v, L_max_a, L_id_v_dist, L_loss_lenght = window.analyse_direction_constante(L_min, L_max, T_min, T_max, n_T, n_L, x0, v0, a0, a1, direction_win, v_win, norme_v1, conv_L_m, conv_T_s,  n_point, args.all)
-                window.plot_analyse_direction_constante(Loss, L_loss_lenght, L_loss_max_v, L_id_v_dist, L_max_a, L_min, L_max, T_min, T_max, n_L, n_T)
+                if args.torch:
+                    Loss = window.analyse_direction_constante_torch(L_min, L_max, T_min, T_max, n_T, n_L, x0, v0, a0, a1, direction_win, v_win, norme_v1, conv_L_m, conv_T_s,  n_point)
+                    L_loss_max_v, L_max_a, L_id_v_dist, L_loss_lenght = None, None, None, None
+                    Loss = Loss.numpy()
+                else:
+                    Loss, L_loss_max_v, L_max_a, L_id_v_dist, L_loss_lenght = window.analyse_direction_constante(L_min, L_max, T_min, T_max, n_T, n_L, x0, v0, a0, a1, direction_win, v_win, norme_v1, conv_L_m, conv_T_s,  n_point, args.all)
+                if args.save:
+                    np.save('data/Loss.npy', Loss)
+                else:
+                    window.plot_analyse_direction_constante(Loss, L_loss_lenght, L_loss_max_v, L_id_v_dist, L_max_a, L_min, L_max, T_min, T_max, n_L, n_T)
 
         elif args.path:
             if args.torch:
