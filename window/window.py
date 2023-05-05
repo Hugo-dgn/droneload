@@ -46,7 +46,6 @@ class Window:
         top_l = fact_e2*e_2 - fact_e3*e_3
         bottom_r = -fact_e2*e_2 + fact_e3*e_3
         bottom_l = -fact_e2*e_2 - fact_e3*e_3
-
         corner_window_base = np.column_stack((top_r, top_l, bottom_l, bottom_r))
         corner = self.basis @ self.rotat @ corner_window_base + np.column_stack([self.position for _ in range(4)])
         return corner

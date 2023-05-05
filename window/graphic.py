@@ -1,9 +1,13 @@
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 import numpy as np
+import torch
+
 from matplotlib.animation import FuncAnimation
 from window.path import get_path
+from window.path_torch import get_path_torch
 from window.window import Window
+
 
 
 def plot_analyse_direction_constante(Loss, L_loss_lenght, L_loss_max_v, L_id_v_dist, L_max_a, L_min, L_max, T_min, T_max, n_L, n_T):
@@ -85,7 +89,7 @@ def plot_analyse_total(Loss_angle, n_angle_phi, n_angle_theta):
 
     plt.show()
 
-def plot_path(L, T, x0, v0, a0, a1, norme_v1, direction_win, v_win,scale, theta, n_point):
+def plot_path(L, T, x0, v0, a0, a1, norme_v1, direction_win, v_win,scale, theta, n_point, use_torch=False):
     #calcule des paramètre imposés
 
     x1 = x0+L*direction_win/np.linalg.norm(direction_win)
@@ -95,8 +99,18 @@ def plot_path(L, T, x0, v0, a0, a1, norme_v1, direction_win, v_win,scale, theta,
 
     #########
     #calucule la trajectoire
-
-    t, val_u = get_path(x0, x1, v0, v1, a0, a1, L, T, n_point)
+    if use_torch:
+        x0 = torch.tensor(x0)
+        x1 = torch.tensor(x1)
+        v0 = torch.tensor(v0)
+        v1 = torch.tensor(v1)
+        a0 = torch.tensor(a0)
+        a1 = torch.tensor(a1)
+        t, val_u = get_path_torch(x0, x1, v0, v1, a0, a1, L, T, n_point)
+        t = t.numpy()
+        val_u = val_u.numpy()
+    else:
+        t, val_u = get_path(x0, x1, v0, v1, a0, a1, L, T, n_point)
 
     val_v = np.gradient(np.transpose(val_u), T/n_point)[0]
     norme_val_v = np.linalg.norm(val_v, axis=1)
@@ -108,6 +122,9 @@ def plot_path(L, T, x0, v0, a0, a1, norme_v1, direction_win, v_win,scale, theta,
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
+    ax.set_xlabel('x (m)')
+    ax.set_ylabel('y (m)')
+    ax.set_zlabel('z (m)')
 
     def define_animation(x, y, z):
 
@@ -135,10 +152,22 @@ def plot_path(L, T, x0, v0, a0, a1, norme_v1, direction_win, v_win,scale, theta,
 
     corner = win.get_corner()
     corner = np.column_stack([corner[:,0], corner[:,1], corner[:,2], corner[:,3], corner[:,0]])
-    corner = corner.transpose()
 
 
-    ax.plot3D(corner[:,0], corner[:,1], corner[:,2], 'green')
+    ax.plot3D(corner[0,:], corner[1,:], corner[2,:], 'green')
+
+    x_min, x_max = ax.get_xlim()
+    y_min, y_max = ax.get_ylim()
+    z_min, z_max = ax.get_zlim()
+
+    delta = 0.5*max([x_max - x_min, y_max - y_min, z_max - z_min])
+    x_c = (x_max + x_min)/2
+    y_c = (y_max + y_min)/2
+    z_c = (z_max + z_min)/2
+
+    ax.set_xlim([x_c - delta, x_c + delta])
+    ax.set_ylim([y_c - delta, y_c + delta])
+    ax.set_zlim([z_c - delta, z_c + delta])
 
     #########
 

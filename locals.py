@@ -3,8 +3,8 @@ import numpy as np
 #########
 #Paramètre de la fenètre
 
-direction_win = np.array([ 0.99015699,  0.0622954,  -0.12533323])
-v_win = np.array([1, 0, 0])
+direction_win = np.array([ 1,  0,  0])
+v_win = np.array([1, 1, 0])
 scale = 1
 theta = 0
 
@@ -13,7 +13,7 @@ theta = 0
 
 x0 = np.array([0, 0, 0])
 v0 = np.array([0, 0, 0])
-norme_v1 = 2
+norme_v1 = 1
 a0 = np.array([0, 0, 0])
 a1 = np.array([0, 0, 0])
 
@@ -22,7 +22,7 @@ a1 = np.array([0, 0, 0])
 #########
 #Paramètres de dimensionement pour calculer un path
 
-L = 1.8399999999999999
+L = 1.8
 T = 2.4
 n_point = 100
 
@@ -40,8 +40,8 @@ L_max = 15
 T_min = 1
 T_max = 15
 
-n_T = 1000
-n_L = 1000
+n_T = 100
+n_L = 100
 
 n_angle_phi = 100
 n_angle_theta = 100

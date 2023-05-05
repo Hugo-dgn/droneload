@@ -22,9 +22,16 @@ def main():
     parser.add_argument('--contours', default=False, action="store_true")
     parser.add_argument('--rect', default=False, action="store_true")
     parser.add_argument('--arrows', default=False, action="store_true")
+
+    parser.add_argument('--torch', default=False, action="store_true")
+
+    
     
     parser.add_argument('vars', nargs='*')
     args = parser.parse_args()
+
+    if args.torch:
+        print(window.find_dvice_cuda())
 
     if args.task == "window":
         if args.loss:
@@ -36,7 +43,10 @@ def main():
                 window.plot_analyse_direction_constante(Loss, L_loss_lenght, L_loss_max_v, L_id_v_dist, L_max_a, L_min, L_max, T_min, T_max, n_L, n_T)
 
         elif args.path:
-            window.plot_path(L, T, x0, v0, a0, a1, norme_v1, direction_win, v_win,scale, theta, n_point)
+            if args.torch:
+                window.plot_path(L, T, x0, v0, a0, a1, norme_v1, direction_win, v_win,scale, theta, n_point, True)
+            else:
+                window.plot_path(L, T, x0, v0, a0, a1, norme_v1, direction_win, v_win,scale, theta, n_point)
     elif args.task == "video":
         if args.contours:
             video.video_contours()

@@ -12,7 +12,7 @@ def video_contours():
         
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         
-        pool_size = 3
+        pool_size = 1
         if pool_size > 1:
             image = image[::pool_size, ::pool_size]
 
@@ -29,10 +29,11 @@ def video_rectangle(draw_arrow=True):
     cap = cv2.VideoCapture(0)
     while True:
         ret, frame = cap.read()
+        _frame = frame.copy()
         
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        pool_size = 3
+        pool_size = 1
         if pool_size > 1:
             image = image[::pool_size, ::pool_size]
 
@@ -52,6 +53,9 @@ def video_rectangle(draw_arrow=True):
         cv2.imshow('Contours', frame)
         if cv2.waitKey(100) == ord('q'):
             break
+    
+    cv2.imwrite("data/rect_dected.jpg", frame)
+    cv2.imwrite("data/rect_not_dected.jpg", _frame)
     
     cap.release()
     cv2.destroyAllWindows()
