@@ -12,18 +12,18 @@ t = None
 M = None
 def define_t(n_point):
     global t
-    t = torch.linspace(0, 1, n_point).float()
+    t = torch.linspace(0, 1, n_point).float().to(device)
 
 def define_M(t):
     global M
-    M = torch.stack([t**(6-n) for n in range(1, 7)])
+    M = torch.stack([t**(6-n) for n in range(1, 7)]).to(device) 
 
 A = torch.tensor([[0, 0, 0, 0, 0, 1],
                   [1, 1, 1, 1, 1, 1],
                   [0, 0, 0, 0, 1, 0],
                   [5, 4, 3, 2, 1, 0],
                   [0, 0, 0, 2, 0, 0],
-                  [20, 12, 6, 2, 0, 0]], dtype=torch.float)
+                  [20, 12, 6, 2, 0, 0]], dtype=torch.float).to(device) 
 
 A_inv = torch.linalg.inv(A)
 
