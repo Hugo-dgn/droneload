@@ -38,7 +38,10 @@ def main():
         if args.loss:
             if args.total:
                 A = window.analyse(L_min, L_max, T_min, T_max, n_T, n_L, x0, v0, a0, a1, v_win, norme_v1, conv_L_m, conv_T_s,  n_point, n_angle_phi, n_angle_theta)
-                window.plot_analyse_total(A, n_angle_phi, n_angle_theta)
+                if args.save:
+                    np.save('data/all_Loss.npy', A)
+                else:
+                    window.plot_analyse_total(A, n_angle_phi, n_angle_theta)
             else:
                 if args.torch:
                     Loss = window.analyse_direction_constante_torch(L_min, L_max, T_min, T_max, n_T, n_L, x0, v0, a0, a1, direction_win, v_win, norme_v1, conv_L_m, conv_T_s,  n_point)
