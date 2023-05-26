@@ -4,8 +4,6 @@ import numpy as np
 from locals import *
 import video
 
-
-
 def main():
     parser = argparse.ArgumentParser(
                     prog = '',
