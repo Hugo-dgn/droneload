@@ -11,11 +11,6 @@ A = np.array([[0, 0, 0, 0, 0, 1],
 
 A_inv = np.linalg.inv(A)
 
-def subord_norm(A):
-    AT_A = np.dot(A.T, A)
-    eigvals = np.sqrt(np.linalg.eigvals(AT_A))
-    return np.max(eigvals)
-
 def get_path(x0, x1, v0, v1, a0, a1, L, T, n_point):
 
     x0_ad = x0/L

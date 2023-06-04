@@ -1,7 +1,6 @@
 import numpy as np
 import window.loss as loss
 from window.path import get_path
-import time
 
 def get_L_T_grid(X, Y):
     M = np.stack((X, Y), axis=2)
@@ -83,3 +82,20 @@ def analyse(L_min, L_max, T_min, T_max, n_T, n_L, x0, v0, a0, a1, v_win, norme_v
     A = np.apply_along_axis(calcul_loss, 2, A)[::-1]
     return A
 
+def analyse_all_cube(lenght_side, T, v0, a0, v1, a1, n_point, n_point_path, conv_L_m, conv_T_s):
+    X = np.linspace(0, 2*lenght_side, n_point)
+    Y = np.linspace(0, 2*lenght_side, n_point)
+    Z = np.linspace(0, 2*lenght_side, n_point)
+    M_loss = np.zeros((n_point, n_point, n_point))
+
+    x1 = np.array([lenght_side, lenght_side, lenght_side])
+
+    for i_x, x in enumerate(X):
+        for i_y, y in enumerate(Y):
+            for i_z, z in enumerate(Z):
+                x0 = np.array([x, y, z])
+                L = np.linalg.norm(x1-x0)
+                if L > 0:
+                    t, val_u = get_path(x0, x1, v0, v1, a0, a1, L, T, n_point_path)
+                    M_loss[i_x, i_y, i_z] = loss.loss(t, val_u, T, conv_L_m, conv_T_s)
+    return M_loss

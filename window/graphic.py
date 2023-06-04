@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib.animation import FuncAnimation
 from window.path import get_path
 from window.window import Window
+from skimage.measure import marching_cubes
 
 
 def plot_analyse_direction_constante(Loss, L_loss_lenght, L_loss_max_v, L_id_v_dist, L_max_a, L_min, L_max, T_min, T_max, n_L, n_T):
@@ -124,9 +125,7 @@ def plot_path(L, T, x0, v0, a0, a1, norme_v1, direction_win, v_win,scale, theta,
         return animate
 
     animate = define_animation(val_u[0,:], val_u[1,:], val_u[2,:])
-    ani = FuncAnimation(fig, animate, frames=n_point, interval=T/n_point*1000)
-
-    #ax.plot3D(val_u[:,0], val_u[:,1], val_u[:,2], 'red')
+    ani = FuncAnimation(fig, animate, frames=n_point, interval=T/n_point*1000, blit=True)
 
     #########
 
@@ -140,6 +139,30 @@ def plot_path(L, T, x0, v0, a0, a1, norme_v1, direction_win, v_win,scale, theta,
 
     ax.plot3D(corner[:,0], corner[:,1], corner[:,2], 'green')
 
+    #équilibre les axes
+
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+    zlim = ax.get_zlim()
+
+    m_x = sum(xlim)/2
+    m_y = sum(ylim)/2
+    m_z = sum(ylim)/2
+
+    d_x = xlim[1] - xlim[0]
+    d_y = ylim[1] - ylim[0]
+    d_z = zlim[1] - zlim[0]
+
+    d = max([d_x, d_y, d_z])
+
+    ax.set_xlim((m_x - d/1.9, m_x + d/1.9))
+    ax.set_ylim((m_y - d/1.9, m_y + d/1.9))
+    ax.set_zlim((m_z - d/1.9, m_z + d/1.9))
+
+    ax.set_xlabel("x (m)")
+    ax.set_ylabel("y (m)")
+    ax.set_zlabel("z (m)")
+
     #########
 
     #########
@@ -151,6 +174,13 @@ def plot_path(L, T, x0, v0, a0, a1, norme_v1, direction_win, v_win,scale, theta,
 
     #########
     #plot v
+
+    plt.figure()
+
+    plt.plot(t, norme_val_v)
+
+    plt.xlabel("t (s)")
+    plt.ylabel("v (m/s)")
 
     plt.figure()
 
@@ -168,4 +198,41 @@ def plot_path(L, T, x0, v0, a0, a1, norme_v1, direction_win, v_win,scale, theta,
 
     #########
 
+    plt.show()
+
+def plot_iso_s(M, threshold, lenght_side, v_win, scale, theta):
+    x_win = np.array([len(M)//2, len(M)//2, len(M)//2])
+    win = Window(x_win, v_win*len(M)/lenght_side, scale, theta)
+
+    verts, faces, _, _ = marching_cubes(M, threshold)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot_trisurf(verts[:, 0], verts[:, 1], verts[:, 2], triangles=faces, cmap='viridis', alpha=0.5)
+
+    n_tiks = len(ax.get_xticks())
+    new_ticklabels = np.linspace(0, 2*lenght_side, n_tiks)
+
+    ax.set_xticklabels(np.round(new_ticklabels))
+    ax.set_yticklabels(np.round(new_ticklabels))
+    ax.set_zticklabels(np.round(new_ticklabels))
+
+    ax.set_xlim(0, len(M))
+    ax.set_ylim(0, len(M))
+    ax.set_zlim(0, len(M))
+
+    u, v, w = v_win/np.linalg.norm(v_win)*len(M)/3
+    ax.quiver(x_win[0], x_win[1], x_win[2], u, v, w, arrow_length_ratio=0.1)
+
+    corner = win.get_corner()
+    corner = np.column_stack([corner[:,0], corner[:,1], corner[:,2], corner[:,3], corner[:,0]])
+    corner = corner.transpose()
+
+    ax.plot3D(corner[:,0], corner[:,1], corner[:,2], 'green')
+
+    ax.set_xlabel('x (m)')
+    ax.set_ylabel('y (m)')
+    ax.set_zlabel('z (m)')
+
+    # Affichage du tracé
     plt.show()

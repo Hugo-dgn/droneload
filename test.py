@@ -1,9 +1,22 @@
-import numpy as np
+import cv2
+import timeit
 
-a = np.array([[1, 2, 3],
-              [4, 5, 6],
-              [7, 8, 9]])
+import video.process as process
 
-b = np.kron(a, np.ones((2, 2)))
+cap = cv2.VideoCapture(0)
 
-print(b)
+ret, frame = cap.read()
+image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+contours = process.get_contours_sobel(image)
+process.find_rectangle(contours, 0.1)
+
+def get_rect():
+    contours = process.get_contours_sobel(image)
+    process.find_rectangle(contours, 0.1)
+    return contours
+
+num_runs = 10
+execution_time = timeit.timeit(get_rect, number=num_runs)
+
+print(execution_time)
