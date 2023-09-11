@@ -2,7 +2,7 @@ import numpy as np
 import scipy
 import cv2
 
-import video.rectangle_analysis as rectangle_analysis
+import droneload.video.rectangle_analysis as rectangle_analysis
 
 import time
 

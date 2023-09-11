@@ -1,9 +1,7 @@
 import cv2
-import video.process as process
+import droneload.video.process as process
 import numpy as np
-import video.rectangle_analysis as rectangle_analysis
-
-import time
+import droneload.video.rectangle_analysis as rectangle_analysis
 
 def video_contours():
     cap = cv2.VideoCapture(0)
@@ -59,3 +57,15 @@ def video_rectangle(draw_arrow=True):
     
     cap.release()
     cv2.destroyAllWindows()
+
+def find_rectanle(frame):
+    image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    contours = process.get_contours_sobel(image)
+
+    rects = process.find_rectangle(contours)
+
+    for rect in rects:
+        pts = rect.reshape((-1, 1, 2))
+        cv2.polylines(frame, [pts], True, (0, 255, 0), 2)
+    cv2.imshow('Contours', frame)

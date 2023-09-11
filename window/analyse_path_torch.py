@@ -1,7 +1,7 @@
 import torch
 import numpy as np
-import window.loss as loss
-from window.path_torch import get_path_torch
+import droneload.window.loss as loss
+from droneload.window.path_torch import get_path_torch
 
 if torch.cuda.is_available():
     device = torch.device("cuda")

@@ -1,6 +1,6 @@
 import numpy as np
-import window.loss as loss
-from window.path import get_path
+import droneload.window.loss as loss
+from droneload.window.path import get_path
 
 def get_L_T_grid(X, Y):
     M = np.stack((X, Y), axis=2)

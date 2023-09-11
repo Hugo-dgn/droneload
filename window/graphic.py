@@ -4,9 +4,9 @@ import numpy as np
 import torch
 
 from matplotlib.animation import FuncAnimation
-from window.path import get_path
-from window.path_torch import get_path_torch
-from window.window import Window
+from droneload.window.path import get_path
+from droneload.window.path_torch import get_path_torch
+from droneload.window.window import Window
 
 
 
