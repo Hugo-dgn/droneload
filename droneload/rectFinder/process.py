@@ -2,9 +2,7 @@ import numpy as np
 import scipy
 import cv2
 
-import droneload.video.rectangle_analysis as rectangle_analysis
-
-import time
+import droneload.rectFinder.rectangle_analysis as rectangle_analysis
 
 
 sobel_x = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], dtype=np.uint16)
@@ -52,7 +50,7 @@ def get_contours_canny(image):
     edges = cv2.Canny(image, 50, 150, apertureSize=3)
     return edges
 
-def find_rectangle(image, tol=0.01):
+def find_rectangles(image, tol):
     contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     rects = []
@@ -63,7 +61,7 @@ def find_rectangle(image, tol=0.01):
         if score < tol :
             rects.append(rect)
 
-    return np.array(rects)
+    return rects
 
 
 def convexe_part(image):

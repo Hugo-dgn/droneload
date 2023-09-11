@@ -1,2 +1,2 @@
-import droneload.video as video
+import droneload.rectFinder as rectFinder
 import droneload.window as window

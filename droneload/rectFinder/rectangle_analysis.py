@@ -1,7 +1,12 @@
 import scipy
 import numpy as np
 
-def rectangle_similarity_score(points, minimun_area=1000):
+import droneload.rectFinder.calibration as calibration
+
+def rectangle_similarity_score(points):
+
+    l = calibration.get_image_size()
+
     if len(points) < 4 or len(points)>6:
         return float('inf'), None
     points = points.squeeze()
@@ -15,12 +20,12 @@ def rectangle_similarity_score(points, minimun_area=1000):
     poly = [np.array(points[i]) for i in hull.vertices]
     a, b, c, d = poly
 
-    v1 = b-a
-    v2 = c-b
-    v3 = d-c
-    v4 = a-d
+    v1 = (b-a)/l
+    v2 = (c-b)/l
+    v3 = (d-c)/l
+    v4 = (a-d)/l
 
-    score += 10/abs(np.linalg.det(np.column_stack([v1, v2])))
+    score += 1/abs(np.linalg.det(np.column_stack([v1, v2])))
 
     score += 0.1*abs(1 - abs(np.dot(v1, v3)/np.linalg.norm(v1)/np.linalg.norm(v3)))
     score += 0.1*abs(1 - abs(np.dot(v2, v4)/np.linalg.norm(v2)/np.linalg.norm(v4)))
@@ -29,7 +34,10 @@ def rectangle_similarity_score(points, minimun_area=1000):
 
 
 def get_v1_v2(rect):
-    a, b, c, d = rect
+
+    l = calibration.get_image_size()
+
+    a, b, c, d = rect/l
 
     _v1 = b-a
     _v2 = c-b
@@ -45,7 +53,7 @@ def get_v1_v2(rect):
     return v1, v2
 
 def find_normal(rect, alpha):
-    v1, v2 = get_v1_v2(rect)
+    v1, v2 = get_v1_v2(np.array(rect))
 
     v1_norme = np.linalg.norm(v1)
     v2_norme = np.linalg.norm(v2)
@@ -53,23 +61,24 @@ def find_normal(rect, alpha):
     v1_dot_v2 = np.dot(v1, v2)
 
     if v1_dot_v2 == 0:
-        return np.array([0, 0, 1])
+        A = v1_norme*v2_norme
+        return np.array([0, 0, A]), np.array([0, 0, A])
 
     A = v1_norme**2 - alpha**2*v2_norme**2
 
-    z1_abs = np.sqrt(0.5*(-A + np.sqrt(A**2+4*alpha**2*v1_dot_v2**2)))
+    z1 = 0.5*(-A + np.sqrt(A**2+4*alpha**2*v1_dot_v2**2))
+    p1 = np.append(v1, z1)
+    q1 = np.append(v2, -v1_dot_v2/z1)
+    n1 = np.cross(p1, q1)
 
-    p = np.append(v1, -z1_abs)
-    q = np.append(v2, v1_dot_v2/z1_abs)
+    z2 = 0.5*(-A + np.sqrt(A**2+4*alpha**2*v1_dot_v2**2))
+    p2 = np.append(v1, z2)
+    q2 = np.append(v2, -v1_dot_v2/z2)
+    n2 = np.cross(p2, q2)
 
-    n = np.cross(p, q)
+    return n1, n2
 
-    n = n/np.linalg.norm(n)
-
-    return n
-
-def find_dist(rect, alpha, area, normal):
-    v1, v2 = get_v1_v2(rect)
-    e_z = np.array([0, 0, 1])
-    n_v1_3d = np.linalg.norm(v1)/np.sqrt(1-np.dot(normal, e_z)**2)
+def find_dist(n, A):
+    f = calibration.get_focal()
+    return f*np.sqrt(A)/n
 
