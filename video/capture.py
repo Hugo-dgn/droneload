@@ -58,7 +58,7 @@ def video_rectangle(draw_arrow=True):
     cap.release()
     cv2.destroyAllWindows()
 
-def find_rectanle(frame):
+def draw_rectanle(frame):
     image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     contours = process.get_contours_sobel(image)
@@ -68,4 +68,3 @@ def find_rectanle(frame):
     for rect in rects:
         pts = rect.reshape((-1, 1, 2))
         cv2.polylines(frame, [pts], True, (0, 255, 0), 2)
-    cv2.imshow('Contours', frame)
