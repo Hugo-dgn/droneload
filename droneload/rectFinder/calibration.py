@@ -1,16 +1,27 @@
-_f = None
-_l = None
+import yaml
+import numpy as np
 
-def calibrate_focal(f):
-    global _f
-    _f = f
+class Calibration:
+    mtx = None
+    dist = None
+    l = None
 
-def calibrate_image_size(lenght):
-    global _l
-    _l = lenght
+def calibration(path):
+    with open(path, "r") as f:
+        calibration = yaml.load(f, Loader=yaml.FullLoader)[0]
+    
+    Calibration.mtx = np.array(calibration["mtx"])
+    Calibration.dist = np.array(calibration["dist"])
 
-def get_focal():
-    return _f
+def calibrate_image_size(height):
+    Calibration.l = height
+
+
+def get_mtx():
+    return Calibration.mtx
+
+def get_dist():
+    return Calibration.dist
 
 def get_image_size():
-    return _l
+    return Calibration.l

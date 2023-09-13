@@ -1,6 +1,8 @@
 import scipy
 import numpy as np
 
+import cv2
+
 import droneload.rectFinder.calibration as calibration
 
 def rectangle_similarity_score(points):
@@ -27,8 +29,8 @@ def rectangle_similarity_score(points):
 
     score += 1/abs(np.linalg.det(np.column_stack([v1, v2])))
 
-    score += 0.1*abs(1 - abs(np.dot(v1, v3)/np.linalg.norm(v1)/np.linalg.norm(v3)))
-    score += 0.1*abs(1 - abs(np.dot(v2, v4)/np.linalg.norm(v2)/np.linalg.norm(v4)))
+    score += 0.1*abs(1 - abs(np.dot(v1, v3)/np.linalg.norm(v1)/np.linalg.norm(v3)))**2
+    score += 0.1*abs(1 - abs(np.dot(v2, v4)/np.linalg.norm(v2)/np.linalg.norm(v4)))**2
 
     return score, poly
 
@@ -78,7 +80,22 @@ def find_normal(rect, alpha):
 
     return n1, n2
 
-def find_dist(n, A):
-    f = calibration.get_focal()
-    return f*np.sqrt(A)/n
+def get_3D_vecs(objpts, imgpts):
+    
+    mtx = calibration.get_mtx()
+    dist = calibration.get_dist()
+    
+    retval, rvecs, tvecs, inliers = cv2.solvePnPRansac(objpts, imgpts, mtx, dist)
+    
+    return retval, rvecs, tvecs, inliers
 
+def find_center_2D(rect):
+    rect = np.array(rect)
+
+    if rect.shape == (4, 2):
+        return (rect[0] + rect[1] + rect[2] + rect[3])/4
+
+def find_center_3D(center_2D, dist):
+    x = np.array([center_2D[0], center_2D[1], dist])
+    cmatrix = calibration.get_camera_matrix()
+    return np.linalg.inv(cmatrix) @ x

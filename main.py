@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 
 import droneload
 
+droneload.rectFinder.calibration("calibration.yml")
+
 def main():
     parser = argparse.ArgumentParser(description="droneload tasks")
     
@@ -20,7 +22,7 @@ def main():
     imrect_parser = subparsers.add_parser("imrect", help="Draw rectangles on image")
     imrect_parser.add_argument("image", help="Image to draw rectangles on")
     imrect_parser.add_argument("--alpha", help="Alpha for normal calculation", type=float, default=1)
-    imrect_parser.add_argument("--tol", help="Tolerance for rectangle detection", type=float, default=50)
+    imrect_parser.add_argument("--tol", help="Tolerance for rectangle detection", type=float, default=20)
     imrect_parser.set_defaults(func=image_rectangle)
 
     args = parser.parse_args()
@@ -37,25 +39,41 @@ def print_rect_info(rect, args):
     d = droneload.rectFinder.find_dist(np.linalg.norm(n1), 25e-4)
     print(f"d = {d}\n")
 
+    pos2D = droneload.rectFinder.find_center_2D(rect)
+    pos3D = droneload.rectFinder.find_center_3D(pos2D, d)
+    print(f"p = {pos3D}")
+
 
 def video_rectangle(args):
     cap = cv2.VideoCapture(0)
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     droneload.rectFinder.calibrate_image_size(height)
-    droneload.rectFinder.calibrate_focal(1.484)
+    
+    objpts = np.array(
+        [[-2.5, 0, -2.5],
+         [2.5, 0, -2.5],
+         [2.5, 0, 2.5],
+         [-2.5, 0, 2.5]], dtype=np.float32
+    )
 
     while True:
         ret, frame = cap.read()
+        frame = droneload.rectFinder.undistort(frame)
 
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         contours = droneload.rectFinder.get_contours_sobel(image)
         rects = droneload.rectFinder.find_rectangles(contours, tol=args.tol)
+        
         droneload.rectFinder.draw_rectangles(frame, rects)
 
-        if args.info and len(rects) == 1:
-            print_rect_info(rects[0], args)
+        if len(rects) == 1:
+            center = droneload.rectFinder.find_center_2D(rects[0])
+            if args.info:
+                print_rect_info(rects[0], args)
+            retval, rvecs, tvecs, inliers = droneload.rectFinder.get_3D_vecs(objpts, rects[0])
+            droneload.rectFinder.draw_coordinate(frame, center, rvecs, tvecs)
 
         cv2.imshow('frame', frame)
 
@@ -76,7 +94,8 @@ def image_rectangle(args):
 
     contours = droneload.rectFinder.get_contours_sobel(image)
     rects = droneload.rectFinder.find_rectangles(contours, tol=args.tol)
-    droneload.rectFinder.draw_rectangles(frame, rects)
+    centers = droneload.rectFinder.find_center_2D(rects)
+    droneload.rectFinder.draw_rectangles(frame, rects, centers)
 
     if len(rects) == 1:
         print_rect_info(rects[0], args)
