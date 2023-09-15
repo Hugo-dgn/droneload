@@ -32,4 +32,5 @@ class Window:
     def __init__(self, corners):
         self.corners = np.array(corners)
         self.n = np.cross(self.corners[1]-self.corners[0], self.corners[2]-self.corners[0])
+        self.n = self.n/np.linalg.norm(self.n)
         self.p = np.mean(corners, axis=0)

@@ -5,8 +5,11 @@ from droneload.rectFinder.calibration import get_image_size
 from droneload.rectFinder.calibration import get_dist, get_mtx
 CURRENT_ID = 0
 
+"""
+Transform coordinate from solverPnP to classic coordinate system²
+"""
 correction_matrice = np.array([
-            [-1, 0, 0],
+            [1, 0, 0],
             [0, 0, 1],
             [0, -1, 0]
         ])
@@ -17,15 +20,15 @@ _current_rects = []
 def rotate_list(l, n):
     return np.concatenate((l[n:], l[:n]))
 
-def _find_best_fit(corners1, corners2, current_best_score, current_best_fit):
+def _find_best_fit(corners2D1, corners2D2, current_best_score, current_best_fit):
     l = get_image_size()
     
     for _ in range(4):
-        score = np.linalg.norm(corners1 - corners2)/l
+        score = np.linalg.norm(corners2D1 - corners2D2)/l
         if score < current_best_score:
             current_best_score = score
-            current_best_fit = corners1.copy()
-        corners1 = rotate_list(corners1, 1)
+            current_best_fit = corners2D1.copy()
+        corners2D1 = rotate_list(corners2D1, 1)
     
     return current_best_score, current_best_fit
 
@@ -38,7 +41,7 @@ def remove_old_rects(max_count):
     _current_rects = [(rect, count+1) for rect, count in _current_rects if count < max_count]
 
 
-class Rect2D:
+class Rect:
     
     """
     This class represents a 2D rectangle using cv2 coordinate convention.
@@ -46,121 +49,80 @@ class Rect2D:
     The top left corner is the corner closer to the origine
     """
     
-    def __init__(self, corners):
-        self.corners = np.array(corners)
-        if not self.corners.shape == (4, 2):
-            message = "corners must be a 4x2 numpy array"
-            raise ValueError(message)
-        
-        self.classic_oder()
+    def __init__(self, corners2D, corners3D = None):
+        if corners3D is not None:
+            self.corners3D = np.array(corners3D)
+            self.classic_oder_3D()
+        else:
+            self.corners3D = None
+            
+        self.corners2D = np.array(corners2D)
+        self.classic_oder2D()
         
         global CURRENT_ID
         self.id = CURRENT_ID
         CURRENT_ID += 1
-
-        self.retval = False
-        self.tvecs = None
-        self.rvecs = None
-        
-        self._updim = None
     
-    def classic_oder(self):
+    def define_3D(self, corners3D):
+        self.corners3D = np.array(corners3D)
+        self.classic_oder_3D()
+    
+    def classic_oder2D(self):
         
-        v1 = self.corners[1] - self.corners[0]
-        v2 = self.corners[2] - self.corners[1]
+        v1 = self.corners2D[1] - self.corners2D[0]
+        v2 = self.corners2D[2] - self.corners2D[1]
         
         if np.cross(v1, v2) < 0:
-            self.corners = self.corners[::-1]
+            self.corners2D = self.corners2D[::-1]
         
-        top_left_index = np.argmin(np.linalg.norm(self.corners, axis=1))
-        self.corners = rotate_list(self.corners, top_left_index)
+        top_left_index = np.argmin(np.linalg.norm(self.corners2D, axis=1))
+        self.corners2D = rotate_list(self.corners2D, top_left_index)
+        
+    def classic_oder_3D(self):
+        v1 = self.corners3D[1][:2] - self.corners3D[0][:2]
+        v2 = self.corners3D[2][:2] - self.corners3D[1][:2]
+        
+        if np.cross(v1, v2) > 0:
+            self.corners3D = self.corners3D[::-1]
+            
+        top_left_index = np.argmin(np.linalg.norm(self.corners3D[:,:2], axis=1))
+        self.corners3D = rotate_list(self.corners3D, top_left_index)
+        
+    def center2D(self):
+        return np.mean(self.corners2D, axis=0)
     
-    def center(self):
-        return np.mean(self.corners, axis=0)
+    def center3D(self):
+        return np.mean(self.corners3D, axis=0)
     
     def similarity(self, rect): 
-        bestscore, bestfit = _find_best_fit(self.corners, rect.corners, float('inf'), self.corners.copy())
-        bestscore, bestfit = _find_best_fit(self.corners[::-1], rect.corners, bestscore, bestfit)
+        bestscore, bestfit = _find_best_fit(self.corners2D, rect.corners2D, float('inf'), self.corners2D.copy())
+        bestscore, bestfit = _find_best_fit(self.corners2D[::-1], rect.corners2D, bestscore, bestfit)
         
         return bestscore, bestfit
 
-    def updim(self, target_rect):
-        objpts = target_rect.corners
-        if len(objpts.shape) != 2 or objpts.shape[1] != 3:
-            raise ValueError("objpts must be a matrix of shape (n, 3)")
-        
-        if self.tvecs is None or self.rvecs is None:
-            message = "Rect2D must be computed before calling updim"
-            raise ValueError(message)
-        
-        R, _ = cv2.Rodrigues(self.rvecs)
-
-        points = self.tvecs + R@objpts.T
-        
-        points = correction_matrice@points
-        
-        self._updim = Rect3D(points.T)
-        
-        return self._updim
-
-    def compute(self, target_rect):
+    def compute(self):
         
         dist = get_dist()
         mtx = get_mtx()
         
-        objpts = np.array(target_rect.corners, dtype=np.float32)
-        imgpts = np.array(self.corners, dtype=np.float32)
+        objpts = np.array(self.corners3D, dtype=np.float32)
+        imgpts = np.array(self.corners2D, dtype=np.float32)
         
-        retval, rvecs, tvecs, inliers = cv2.solvePnPRansac(objpts, imgpts, mtx, dist)
         
-        self.tvecs = tvecs
-        self.rvecs = rvecs
-        self.retval = retval
+        retval, rvecs, tvecs = cv2.solvePnP(objpts, imgpts, mtx, dist)
 
+        pos = (correction_matrice @ tvecs).reshape(3)
     
-        return retval, rvecs, tvecs, inliers
+        return pos, retval, rvecs, tvecs
     
     def fit(self, tol):
         for i, (rect, last) in enumerate(_current_rects):
             score, fit = self.similarity(rect)
             if score < tol:                
-                self.corners = fit
+                self.corners2D = fit
                 self.id = rect.id
                 _current_rects[i] = (self, 0)
                 return True
         
         _current_rects.append((self, 0))
         return False
- 
-        
-
-class Rect3D:
-    
-    """
-    This class represents a 3D rectangle using classic 3D coordinate convention.
-    The classic oder begin with the top left corner and goes clockwise when projecting to the (x, z) plane.
-    """
-    
-    def __init__(self, corners) -> None:
-        self.corners = np.array(corners)
-        if not self.corners.shape == (4, 3):
-            message = "corners of Rect3D must be a 4x3 numpy array"
-            raise ValueError(message)
-        
-        self.classic_oder()
-    
-    def classic_oder(self):
-        
-        projection = self.corners[:, [0, 2]]
-        
-        projection -= 2*np.array([0, np.max(projection.reshape(-1))])
-        
-        v1 = projection[1] - projection[0]
-        v2 = projection[2] - projection[1]
-        
-        if np.cross(v1, v2) > 0:
-            self.corners = self.corners[::-1]
-            projection = projection[::-1]
-        
-        top_left_index = np.argmin(np.linalg.norm(projection, axis=1))
-        self.corners = rotate_list(self.corners, top_left_index)

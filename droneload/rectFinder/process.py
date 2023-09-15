@@ -4,7 +4,7 @@ import cv2
 
 import droneload.rectFinder.rectangle_analysis as rectangle_analysis
 import droneload.rectFinder.calibration as calibration
-from droneload.rectFinder.rect import Rect2D
+from droneload.rectFinder.rect import Rect
 
 
 sobel_x = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], dtype=np.uint16)
@@ -29,7 +29,7 @@ def find_rectangles(image, tol):
         approx = cv2.approxPolyDP(contour, 0.02 * peri, True)
         score, rect = rectangle_analysis.rectangle_similarity_score(approx)
         if score < tol :
-            rect = Rect2D(rect)
+            rect = Rect(rect)
             rects.append(rect)
 
     return rects
