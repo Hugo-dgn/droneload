@@ -62,7 +62,7 @@ def init_scene(lim_x=None, lim_y=None, lim_z=None):
     
 
 
-def draw_scene():
+def draw_scene(pause = 0.001):
     
     if Scene.ax is None:
         message = "the scene wasn't init, use droneload.rectFinder.init_scene"
@@ -86,4 +86,4 @@ def draw_scene():
         corners = np.column_stack([corners[:,0], corners[:,1], corners[:,2], corners[:,3], corners[:,0]])
         Scene.ax.plot3D(corners[0,:], corners[1,:], corners[2,:], 'green')
     Scene.ax.scatter([0], [0], [0], c='r', marker='o')
-    plt.pause(0.0001)
+    plt.pause(pause)
