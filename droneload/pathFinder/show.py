@@ -1,18 +1,7 @@
 import numpy as np
 import cv2
 
-
 from droneload.rectFinder.calibration import get_mtx, get_dist
-
-correction_matrice = np.array([
-            [1, 0, 0],
-            [0, 0, 1],
-            [0, -1, 0]
-        ])
-
-correction_matrice = np.linalg.inv(correction_matrice)
-
-print(correction_matrice)
 
 def draw_path_cv(frame, path, rvec, tvec):
     
