@@ -21,8 +21,6 @@ def draw_path_cv(frame, path, rvec, tvec):
     
     path = np.array(path, dtype=np.float32).T
     path = path[-path.shape[0]//2:,:]
-    
-    print(path.shape)
     imgpts, jac = cv2.projectPoints(path, rvec, tvec, mtx, dist)
     
     # Supposons que vous avez une liste de points appelée 'curve_points'
