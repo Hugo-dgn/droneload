@@ -45,11 +45,12 @@ def main():
     impath_parser.add_argument("--n_point", help="Number of point to calculate the path", type=int, default=100)
     impath_parser.set_defaults(func=utils.image_path)
     
-    anim_parser = subparsers.add_parser("anim", help="Animate path")
-    anim_parser.add_argument("--fps", help="Frames per second", type=int, default=30)
-    anim_parser.add_argument("--tol", help="Tolerance for rectangle detection", type=float, default=5)
-    anim_parser.add_argument("--fit", help="Threshold for rectangle fit", type=float, default=0.8)
-    anim_parser.set_defaults(func=utils.animate_scene)
+    r3D_parser = subparsers.add_parser("r3D", help="Animate path")
+    r3D_parser.add_argument("--fps", help="Frames per second", type=int, default=30)
+    r3D_parser.add_argument("--tol", help="Tolerance for rectangle detection", type=float, default=5)
+    r3D_parser.add_argument("--fit", help="Threshold for rectangle fit", type=float, default=0.8)
+    r3D_parser.add_argument("--l", help="Lenght of a side of the displayed cube", type=float, default=30)
+    r3D_parser.set_defaults(func=utils.animate_scene)
     
     args = parser.parse_args()
 

@@ -33,35 +33,3 @@ def rectangle_similarity_score(points):
     score += 0.1*abs(1 - abs(np.dot(v2, v4)/np.linalg.norm(v2)/np.linalg.norm(v4)))**2
 
     return score, poly
-
-def get_3D_vecs(target_rect, rect):
-    
-    mtx = calibration.get_mtx()
-    dist = calibration.get_dist()
-    
-    objpts = target_rect.corners.astype(np.float32)
-    imgpts = rect.corners.astype(np.float32)
-    
-    retval, rvecs, tvecs, inliers = cv2.solvePnPRansac(objpts, imgpts, mtx, dist)
-    
-    return retval, rvecs, tvecs, inliers
-
-def find_pos_3D(objpts, tvecs, rvecs):
-    if len(objpts.shape) != 2 or objpts.shape[1] != 3:
-        raise ValueError("objpts must be a matrix of shape (n, 3)")
-    
-    R, _ = cv2.Rodrigues(rvecs)
-    
-    t = np.array([[tvecs[0][0]], [tvecs[2][0]], [tvecs[1][0]]])
-
-    points = tvecs + R@objpts.T
-    
-    correction_matrice = np.array([
-        [1, 0, 0],
-        [0, 0, 1],
-        [0, 1, 0]
-    ])
-    
-    points = correction_matrice@points
-    
-    return points.T

@@ -20,20 +20,12 @@ target_rect = droneload.rectFinder.Rect3D(
     ))
 
 
-
-def print_rect_info(retval, rvecs, tvecs, inliers):
-    print(f"\nd = {np.linalg.norm(tvecs)}")
-    print(f"pos = {tvecs.ravel()}")
-    print(f"rot = {rvecs.ravel()}\n")
-    print(f"retval = {retval}")
-
-
 def video_rectangle(args):
+    
     cap = cv2.VideoCapture(0)
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-
     droneload.rectFinder.calibrate_image_size(height)
-
+    
     while True:
         ret, frame = cap.read()
         frame = droneload.rectFinder.undistort(frame)
@@ -44,25 +36,21 @@ def video_rectangle(args):
         rects = droneload.rectFinder.find_rectangles(contours, tol=args.tol)
         
         droneload.rectFinder.remove_old_rects(10)
+    
         for rect in rects:
             center = rect.center()
             rect.fit(args.fit)
-            retval, rvecs, tvecs, inliers = droneload.rectFinder.get_3D_vecs(target_rect, rect)
+            rect.compute(target_rect)
+            rect.updim(target_rect)
             
-            if retval:
-                droneload.rectFinder.draw_coordinate(frame, center, rvecs, tvecs)
-            
-                if args.info:
-                    print_rect_info(retval, rvecs, tvecs, inliers)
-        
+            if rect.retval:
+                droneload.rectFinder.draw_coordinate(frame, center, rect.rvecs, rect.tvecs)
+
         droneload.rectFinder.draw_rectangles(frame, rects)
-
+        
         cv2.imshow('frame', frame)
-
         if cv2.waitKey(100) == ord('q'):
             break
-    
-    cap.release()
     cv2.destroyAllWindows()
 
 def image_rectangle(args):
@@ -73,19 +61,22 @@ def image_rectangle(args):
 
     image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
+    image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
     contours = droneload.rectFinder.get_contours_sobel(image)
     rects = droneload.rectFinder.find_rectangles(contours, tol=args.tol)
     
-    droneload.rectFinder.draw_rectangles(frame, rects)
+    droneload.rectFinder.remove_old_rects(10)
 
     for rect in rects:
         center = rect.center()
-        retval, rvecs, tvecs, inliers = droneload.rectFinder.get_3D_vecs(target_rect, rect)
+        rect.compute(target_rect)
         
-        if retval:
-            droneload.rectFinder.draw_coordinate(frame, center, rvecs, tvecs)
-            print_rect_info(retval, rvecs, tvecs, inliers)
+        if rect.retval:
+            droneload.rectFinder.draw_coordinate(frame, center, rect.rvecs, rect.tvecs)
 
+    droneload.rectFinder.draw_rectangles(frame, rects)
+        
     cv2.imshow('frame', frame)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
@@ -149,17 +140,37 @@ def plot_analyse_direction_constante(Loss, L_loss_lenght, L_loss_max_v, L_id_v_d
 
     plt.show()
     
+def draw_scene(ax):
+    ax.clear()
+    
+    ax.set_xlim([-30, 30])
+    ax.set_ylim([-30, 30])
+    ax.set_zlim([-30, 30])
+    
+    ax.set_xlabel('x (m)')
+    ax.set_ylabel('y (m)')
+    ax.set_zlabel('z (m)')
+    ax.scatter([0], [0], [0], c='r', marker='o')
+    
+    rects = droneload.rectFinder.get_current_rects()
+    for rect, life in rects:
+        corners = droneload.rectFinder.find_pos_3D(target_rect.corners, rect.tvecs, rect.rvecs)
+        window = droneload.pathFinder.Window(corners)
+        corners = window.corners.copy().T
+        corners = np.column_stack([corners[:,0], corners[:,1], corners[:,2], corners[:,3], corners[:,0]])
+        ax.plot3D(corners[0,:], corners[1,:], corners[2,:], 'green')
+    ax.scatter([0], [0], [0], c='r', marker='o')
+    plt.pause(0.0001)
 
 def animate_scene(args):
-    
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
     
     cap = cv2.VideoCapture(0)
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     droneload.rectFinder.calibrate_image_size(height)
     
-    def animate(i):
+    droneload.rectFinder.init_scene()
+    
+    while True:
         ret, frame = cap.read()
         frame = droneload.rectFinder.undistort(frame)
 
@@ -169,36 +180,23 @@ def animate_scene(args):
         rects = droneload.rectFinder.find_rectangles(contours, tol=args.tol)
         
         droneload.rectFinder.remove_old_rects(10)
-        
-        if len(rects) >0:
-            ax.clear()
-            ax.set_xlabel('x (m)')
-            ax.set_ylabel('y (m)')
-            ax.set_zlabel('z (m)')
-            ax.scatter([0], [0], [0], c='r', marker='o')
     
         for rect in rects:
             center = rect.center()
             rect.fit(args.fit)
-            retval, rvecs, tvecs, inliers = droneload.rectFinder.get_3D_vecs(target_rect, rect)
+            rect.compute(target_rect)
+            rect.updim(target_rect)
             
-            if retval:
-                droneload.rectFinder.draw_coordinate(frame, center, rvecs, tvecs)
+            if rect.retval:
+                droneload.rectFinder.draw_coordinate(frame, center, rect.rvecs, rect.tvecs)
             
-            corners = droneload.rectFinder.find_pos_3D(target_rect.corners, tvecs, rvecs)
-            window = droneload.pathFinder.Window(corners)
-            plot_scene(window, ax)
-            ax.set_xlim([0, 50])
-            ax.set_ylim([0, 50])
-            ax.set_zlim([0, 50])
-        
+        droneload.rectFinder.draw_scene()
         droneload.rectFinder.draw_rectangles(frame, rects)
         
         cv2.imshow('frame', frame)
-        cv2.waitKey(100)
-        
-    ani = FuncAnimation(fig, animate, frames=1000, interval=args.fps)
-    plt.show()
+        if cv2.waitKey(100) == ord('q'):
+            break
+    cv2.destroyAllWindows()
     
     
 def plot_scene(window, ax):
