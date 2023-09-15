@@ -139,28 +139,6 @@ def plot_analyse_direction_constante(Loss, L_loss_lenght, L_loss_max_v, L_id_v_d
         plt.title('max_a', fontsize=8)
 
     plt.show()
-    
-def draw_scene(ax):
-    ax.clear()
-    
-    ax.set_xlim([-30, 30])
-    ax.set_ylim([-30, 30])
-    ax.set_zlim([-30, 30])
-    
-    ax.set_xlabel('x (m)')
-    ax.set_ylabel('y (m)')
-    ax.set_zlabel('z (m)')
-    ax.scatter([0], [0], [0], c='r', marker='o')
-    
-    rects = droneload.rectFinder.get_current_rects()
-    for rect, life in rects:
-        corners = droneload.rectFinder.find_pos_3D(target_rect.corners, rect.tvecs, rect.rvecs)
-        window = droneload.pathFinder.Window(corners)
-        corners = window.corners.copy().T
-        corners = np.column_stack([corners[:,0], corners[:,1], corners[:,2], corners[:,3], corners[:,0]])
-        ax.plot3D(corners[0,:], corners[1,:], corners[2,:], 'green')
-    ax.scatter([0], [0], [0], c='r', marker='o')
-    plt.pause(0.0001)
 
 def animate_scene(args):
     
