@@ -34,68 +34,34 @@ def rectangle_similarity_score(points):
 
     return score, poly
 
-
-def get_v1_v2(rect):
-
-    l = calibration.get_image_size()
-
-    a, b, c, d = rect/l
-
-    _v1 = b-a
-    _v2 = c-b
-
-    e_x = np.array([1, 0])
-    if abs(np.dot(_v1, e_x)) >  np.dot(_v2, e_x):
-        v1 = _v1
-        v2 = _v2
-    else:
-        v1 = _v2
-        v2 = _v1
-    
-    return v1, v2
-
-def find_normal(rect, alpha):
-    v1, v2 = get_v1_v2(np.array(rect))
-
-    v1_norme = np.linalg.norm(v1)
-    v2_norme = np.linalg.norm(v2)
-
-    v1_dot_v2 = np.dot(v1, v2)
-
-    if v1_dot_v2 == 0:
-        A = v1_norme*v2_norme
-        return np.array([0, 0, A]), np.array([0, 0, A])
-
-    A = v1_norme**2 - alpha**2*v2_norme**2
-
-    z1 = 0.5*(-A + np.sqrt(A**2+4*alpha**2*v1_dot_v2**2))
-    p1 = np.append(v1, z1)
-    q1 = np.append(v2, -v1_dot_v2/z1)
-    n1 = np.cross(p1, q1)
-
-    z2 = 0.5*(-A + np.sqrt(A**2+4*alpha**2*v1_dot_v2**2))
-    p2 = np.append(v1, z2)
-    q2 = np.append(v2, -v1_dot_v2/z2)
-    n2 = np.cross(p2, q2)
-
-    return n1, n2
-
-def get_3D_vecs(objpts, imgpts):
+def get_3D_vecs(target_rect, rect):
     
     mtx = calibration.get_mtx()
     dist = calibration.get_dist()
+    
+    objpts = target_rect.corners.astype(np.float32)
+    imgpts = rect.corners.astype(np.float32)
     
     retval, rvecs, tvecs, inliers = cv2.solvePnPRansac(objpts, imgpts, mtx, dist)
     
     return retval, rvecs, tvecs, inliers
 
-def find_center_2D(rect):
-    rect = np.array(rect)
+def find_pos_3D(objpts, tvecs, rvecs):
+    if len(objpts.shape) != 2 or objpts.shape[1] != 3:
+        raise ValueError("objpts must be a matrix of shape (n, 3)")
+    
+    R, _ = cv2.Rodrigues(rvecs)
+    
+    t = np.array([[tvecs[0][0]], [tvecs[2][0]], [tvecs[1][0]]])
 
-    if rect.shape == (4, 2):
-        return (rect[0] + rect[1] + rect[2] + rect[3])/4
-
-def find_center_3D(center_2D, dist):
-    x = np.array([center_2D[0], center_2D[1], dist])
-    cmatrix = calibration.get_camera_matrix()
-    return np.linalg.inv(cmatrix) @ x
+    points = tvecs + R@objpts.T
+    
+    correction_matrice = np.array([
+        [1, 0, 0],
+        [0, 0, 1],
+        [0, 1, 0]
+    ])
+    
+    points = correction_matrice@points
+    
+    return points.T

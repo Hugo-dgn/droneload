@@ -1,2 +1,2 @@
 import droneload.rectFinder as rectFinder
-import droneload.window as window
+import droneload.pathFinder as pathFinder
