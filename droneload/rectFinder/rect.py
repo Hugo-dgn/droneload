@@ -92,13 +92,14 @@ class Rect:
         self.corners2D = rotate_list(self.corners2D, top_left_index)
         
     def classic_oder_3D(self):
-        v1 = self.corners3D[1][:2] - self.corners3D[0][:2]
-        v2 = self.corners3D[2][:2] - self.corners3D[1][:2]
+        mask = [True, False, True]
+        v1 = self.corners3D[1][mask] - self.corners3D[0][mask]
+        v2 = self.corners3D[2][mask] - self.corners3D[1][mask]
         
         if np.cross(v1, v2) > 0:
             self.corners3D = self.corners3D[::-1]
             
-        top_left_index = np.argmin(np.linalg.norm(self.corners3D[:,:2], axis=1))
+        top_left_index = np.argmin(np.linalg.norm(self.corners3D[:,mask], axis=1))
         self.corners3D = rotate_list(self.corners3D, top_left_index)
         
     def center2D(self):

@@ -55,7 +55,7 @@ def draw_scene(ax, pause = 0.001):
     ax.set_zlabel('z (m)')
     
     rects = get_current_rects()
-    for rect, life in rects:
+    for rect, life, nb_fit in rects:
         corners = rect.corners3D
         window = Window(corners)
         corners = window.corners.copy().T
