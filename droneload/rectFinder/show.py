@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from droneload.pathFinder.window import Window
 
 import droneload.rectFinder.calibration as calibration
-from droneload.rectFinder.rect import get_current_rects
+from droneload.rectFinder.rect import get_current_rects, get_main_rect
 
 class Scene:
     ax = None
@@ -19,6 +19,14 @@ def draw_rectangles(frame, rects):
         cv2.polylines(frame, [pts], True, (0, 255, 0), 2)
         
         frame = cv2.putText(frame, f"{rect.id}", rect.corners2D[0], cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+
+def draw_main_rectangle(frame):
+    main_rect = get_main_rect()
+    if main_rect is not None:
+        pts = main_rect.corners2D.reshape((-1, 1, 2)).astype(np.int32)
+        cv2.polylines(frame, [pts], True, (255, 0, 0), 2)
+        
+        frame = cv2.putText(frame, f"{main_rect.id}", main_rect.corners2D[0], cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
 def draw_coordinate(frame, center_2D, rvecs, tvecs):
     

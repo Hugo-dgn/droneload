@@ -42,7 +42,9 @@ def video_rectangle(args):
             rect.fit(args.fit)
             pos, retval, rvec, tvec = rect.compute()
             droneload.rectFinder.draw_coordinate(frame, center, rvec, tvec)
+            
         droneload.rectFinder.draw_rectangles(frame, rects)
+        droneload.rectFinder.draw_main_rectangle(frame)
         
         cv2.imshow('frame', frame)
         if cv2.waitKey(100) == ord('q'):

@@ -36,9 +36,18 @@ def _find_best_fit(corners2D1, corners2D2, current_best_score, current_best_fit)
 def get_current_rects():
     return _current_rects.copy()
 
+def get_main_rect():
+    """
+    Return the rect with the highest nb_fit
+    """
+    if len(_current_rects) == 0:
+        return None
+    
+    return max(_current_rects, key=lambda x: x[2])[0]
+
 def remove_old_rects(max_count):
     global _current_rects
-    _current_rects = [(rect, count+1) for rect, count in _current_rects if count < max_count]
+    _current_rects = [(rect, count+1, nb_fit) for rect, count, nb_fit in _current_rects if count < max_count]
 
 
 class Rect:
@@ -116,13 +125,13 @@ class Rect:
         return pos, retval, rvecs, tvecs
     
     def fit(self, tol):
-        for i, (rect, last) in enumerate(_current_rects):
+        for i, (rect, last, nb_fit) in enumerate(_current_rects):
             score, fit = self.similarity(rect)
             if score < tol:                
                 self.corners2D = fit
                 self.id = rect.id
-                _current_rects[i] = (self, 0)
+                _current_rects[i] = (self, 0, nb_fit+1) 
                 return True
         
-        _current_rects.append((self, 0))
+        _current_rects.append((self, 0, 0)) #(rect, time since last fit, successful fit)
         return False
