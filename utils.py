@@ -35,16 +35,13 @@ def video_rectangle(args):
         rects = droneload.rectFinder.find_rectangles(contours, tol=args.tol)
         
         droneload.rectFinder.remove_old_rects(10)
-    
+
         for rect in rects:
             rect.define_3D(target_rect_corners)
             center = rect.center2D()
             rect.fit(args.fit)
-            rect.compute()
-            
-            if rect.retval:
-                droneload.rectFinder.draw_coordinate(frame, center, rect.rvecs, rect.tvecs)
-
+            pos, retval, rvec, tvec = rect.compute()
+            droneload.rectFinder.draw_coordinate(frame, center, rvec, tvec)
         droneload.rectFinder.draw_rectangles(frame, rects)
         
         cv2.imshow('frame', frame)

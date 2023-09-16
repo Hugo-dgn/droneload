@@ -9,11 +9,11 @@ def rectangle_similarity_score(points):
 
     l = calibration.get_image_size()
 
-    if len(points) < 4 or len(points)>6:
+    if len(points) != 4:
         return float('inf'), None
     points = points.squeeze()
     hull = scipy.spatial.ConvexHull(points)
-
+    
     if len(hull.vertices) != 4:
         return float('inf'), hull
     
@@ -27,9 +27,9 @@ def rectangle_similarity_score(points):
     v3 = (d-c)/l
     v4 = (a-d)/l
 
-    score += 1/abs(np.linalg.det(np.column_stack([v1, v2])))
-
-    score += 0.1*abs(1 - abs(np.dot(v1, v3)/np.linalg.norm(v1)/np.linalg.norm(v3)))**2
-    score += 0.1*abs(1 - abs(np.dot(v2, v4)/np.linalg.norm(v2)/np.linalg.norm(v4)))**2
+    score += 1/abs(np.linalg.det(np.column_stack([v1, v2])))**2
+    
+    score += (np.linalg.norm(v1)*np.linalg.norm(v3)/(abs(np.dot(v1, v3))+1e-10))**2
+    score += (np.linalg.norm(v2)*np.linalg.norm(v4)/(abs(np.dot(v2, v4))+1e-10))**2
 
     return score, poly
