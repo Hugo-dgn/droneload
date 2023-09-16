@@ -9,8 +9,8 @@ CURRENT_ID = 0
 Transform coordinate from solverPnP to classic coordinate system²
 """
 correction_matrice = np.array([
-            [1, 0, 0],
             [0, 0, 1],
+            [1, 0, 0],
             [0, -1, 0]
         ])
 
