@@ -36,14 +36,18 @@ def _find_best_fit(corners2D1, corners2D2, current_best_score, current_best_fit)
 def get_current_rects():
     return _current_rects.copy()
 
-def get_main_rect():
+def get_main_rect(min_life_time=0):
     """
     Return the rect with the highest nb_fit
     """
     if len(_current_rects) == 0:
         return None
     
-    return max(_current_rects, key=lambda x: x[2])[0]
+    main_rect = max(_current_rects, key=lambda x: x[2])
+    if main_rect[1] < min_life_time:
+        return None
+    else:
+        return main_rect[0]
 
 def remove_old_rects(max_count):
     global _current_rects
