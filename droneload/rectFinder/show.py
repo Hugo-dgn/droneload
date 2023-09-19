@@ -18,7 +18,7 @@ def draw_rectangles(frame, rects):
         pts = rect.corners2D.reshape((-1, 1, 2)).astype(np.int32)
         cv2.polylines(frame, [pts], True, (0, 255, 0), 2)
         
-        frame = cv2.putText(frame, f"{rect.id}", rect.corners2D[0], cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+        frame = cv2.putText(frame, f"{rect.id}", pts[0][0], cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
 def draw_main_rectangle(frame):
     main_rect = get_main_rect()
