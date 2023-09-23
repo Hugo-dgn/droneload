@@ -26,7 +26,8 @@ def main():
     
     path_parser = subparsers.add_parser("path", help="Find path from parameters")
     path_parser.add_argument("--x0", help="Initial x position", type=float, nargs=3, default=[0, 0, 0])
-    path_parser.add_argument("--n", help="Normal vector of the window", type=float, nargs=3, default=[0, 1, 0])
+    path_parser.add_argument("--n", help="Normal vector of the window", type=float, nargs=3, default=[0, 10, 0])
+    path_parser.add_argument("--L", help="After window lenght", type=float, default=3)
     path_parser.add_argument("--n_point", help="Number of point to calculate the path", type=int, default=100)
     path_parser.set_defaults(func=utils.plot_path)
     

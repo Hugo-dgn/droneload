@@ -250,7 +250,9 @@ def plot_path(args):
     corners = target_rect_corners
     window = droneload.pathFinder.Window(corners)
     
-    q, _ = np.linalg.qr(np.outer(args.n, window.n))
+    n = np.array(args.n)
+    
+    q, _ = np.linalg.qr(np.outer(n/np.linalg.norm(n), window.n))
     
     rotated_corners = (q @ corners.T).T  + np.array([10, 10, 10])
     
@@ -259,7 +261,7 @@ def plot_path(args):
     x0 = np.array(args.x0)
     x1 = window.p
     
-    L = np.linalg.norm(window.p - x0)
+    L = args.L
     u = droneload.pathFinder.get_path(x0, x1, args.n, L, args.n_point)
 
     fig = plt.figure()
