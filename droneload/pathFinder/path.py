@@ -37,7 +37,7 @@ def get_path(x0, x1, v0, v1, a0, a1, L, T, n_point):
 
     Y = A_inv @ X
     
-    t = np.linspace(0, 2, n_point)
+    t = np.linspace(0, 1, n_point)
 
     M = np.vstack([t**(6-n) for n in range(1, 7)])
     U = L*np.transpose(Y) @ M
