@@ -1,10 +1,5 @@
 import numpy as np
 
-t = None
-def define_t(n_point):
-    global t
-    t = np.linspace(0, 1, n_point)
-
 A = np.array([[0, 0, 0, 0, 0, 1],
                 [1, 1, 1, 1, 1, 1],
                 [0, 0, 0, 0, 1, 0],
@@ -46,5 +41,8 @@ def get_path(x0, x1, v0, v1, a0, a1, L, T, n_point):
 
     M = np.vstack([t**(6-n) for n in range(1, 7)])
     U = L*np.transpose(Y) @ M
+    
+    M_beyond = np.vstack([(1+t)**(6-n) for n in range(1, 7)])
+    B = L*np.transpose(Y) @ M_beyond
 
-    return T*t, U
+    return T*t, U, B
