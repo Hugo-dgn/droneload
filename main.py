@@ -25,12 +25,7 @@ def main():
     imrect_parser.set_defaults(func=utils.image_rectangle)
     
     path_parser = subparsers.add_parser("path", help="Find path from parameters")
-    path_parser.add_argument("--T", help="Time to travel", type=float, default=10)
     path_parser.add_argument("--x0", help="Initial x position", type=float, nargs=3, default=[0, 0, 0])
-    path_parser.add_argument("--v0", help="Initial velocity", type=float, nargs=3, default=[0, 0, 0])
-    path_parser.add_argument("--a0", help="Initial acceleration", type=float, nargs=3, default=[0, 0, 0])
-    path_parser.add_argument("--a1", help="Final acceleration", type=float, nargs=3, default=[0, 0, 0])
-    path_parser.add_argument("--norme_v1", help="Final velocity norm", type=float, default=1)
     path_parser.add_argument("--n", help="Normal vector of the window", type=float, nargs=3, default=[0, 1, 0])
     path_parser.add_argument("--n_point", help="Number of point to calculate the path", type=int, default=100)
     path_parser.set_defaults(func=utils.plot_path)

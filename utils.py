@@ -204,13 +204,13 @@ def animate_scene(args):
     cv2.destroyAllWindows()
     
     
-def plot_scene(window, ax):
+def plot_window(window, ax):
     corners = window.corners.copy().T
     corners = np.column_stack([corners[:,0], corners[:,1], corners[:,2], corners[:,3], corners[:,0]])
-
-
     ax.plot3D(corners[0,:], corners[1,:], corners[2,:], 'green')
 
+
+def rectify_ax_lim(ax):
     x_min, x_max = ax.get_xlim()
     y_min, y_max = ax.get_ylim()
     z_min, z_max = ax.get_zlim()
@@ -245,104 +245,35 @@ def plot_analyse_total(Loss_angle, n_angle_phi, n_angle_theta):
     plt.title('loss', fontsize=8)
 
     plt.show()
-
-def _plot_path(T, x0, v0, a0, a1, norme_v1, window, n_point):
-    #calcule des paramètre imposés
+    
+def plot_path(args):
+    corners = target_rect_corners
+    window = droneload.pathFinder.Window(corners)
+    
+    q, _ = np.linalg.qr(np.outer(args.n, window.n))
+    
+    rotated_corners = (q @ corners.T).T  + np.array([10, 10, 10])
+    
+    window = droneload.pathFinder.Window(rotated_corners)
+    
+    x0 = np.array(args.x0)
+    x1 = window.p
     
     L = np.linalg.norm(window.p - x0)
-    
-    a0 = np.array(a0)
-    a1 = np.array(a1)
-    v0 = np.array(v0)
-    x0 = np.array(x0)
-    
-    window.n = np.sign(window.n @ (window.p - x0)) * window.n
-
-    x1 = window.p
-    v1 = window.n/np.linalg.norm(window.n)*norme_v1
-    #########
-
-    #########
-    #calucule la trajectoire
-    
-    t, val_u = droneload.pathFinder.get_path(x0, x1, v0, v1, a0, a1, L, T, n_point)
-
-    val_v = np.gradient(np.transpose(val_u), T/n_point)[0]
-    norme_val_v = np.linalg.norm(val_v, axis=1)
-
-    #########
-
-    #########
-    #plot u
+    u = droneload.pathFinder.get_path(x0, x1, args.n, L, args.n_point)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     ax.set_xlabel('x (m)')
     ax.set_ylabel('y (m)')
     ax.set_zlabel('z (m)')
+    
+    ax.plot3D(u[0,:], u[1,:], u[2,:], 'red')
 
-    def define_animation(x, y, z):
-
-        # Création de la figure et du plot 3D
-        line, = ax.plot(x, y, z)
-        point, = ax.plot([x[0]], [y[0]], [z[0]], 'ro')
-
-        # Fonction d'animation
-        def animate(i):
-            point.set_data([x[i]], [y[i]])
-            point.set_3d_properties(z[i])
-            return line, point,
-
-        return animate
-
-    animate = define_animation(val_u[0,:], val_u[1,:], val_u[2,:])
-    ani = FuncAnimation(fig, animate, frames=n_point, interval=T/n_point*1000)
-
-    #ax.plot3D(val_u[:,0], val_u[:,1], val_u[:,2], 'red')
-
-    #########
-
-    #########
-    #plot la fenètre
-
-    plot_scene(window, ax)
-
-    #########
-
-    #########
-    #enregistre l'animation
-
-    #ani.save("data/animation.gif", writer="pillow")
-
-    #########
-
-    #########
-    #plot v
-
-    plt.figure()
-
-    plt.subplot(2, 2, 1)
-    plt.plot(t, norme_val_v)
-
-    plt.subplot(2, 2, 2)
-    plt.plot(t, val_v[:,0])
-
-    plt.subplot(2, 2, 3)
-    plt.plot(t, val_v[:,1])
-
-    plt.subplot(2, 2, 4)
-    plt.plot(t, val_v[:,2])
-
-    #########
+    plot_window(window, ax)
+    rectify_ax_lim(ax)
 
     plt.show()
-    
-def plot_path(args):
-    target_rect.corners += np.array([10, 10, 10])
-    corners = target_rect.corners
-    window = droneload.pathFinder.Window(corners)
-    
-    _plot_path(args.T, args.x0, args.v0, args.a0, args.a1, args.norme_v1, window, args.n_point)
 
 def image_path(args):
     frame  = cv2.imread(args.image)
