@@ -9,7 +9,7 @@ def rectangle_similarity_score(points):
 
     l = calibration.get_image_size()
 
-    if len(points) != 4:
+    if len(points) < 4 or len(points) > 5:
         return float('inf'), None
     points = points.squeeze()
     hull = scipy.spatial.ConvexHull(points)
