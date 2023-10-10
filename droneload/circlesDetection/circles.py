@@ -1,35 +1,42 @@
 import cv2
 import numpy as np
 
-# Load the image
-image = cv2.imread('Circles.webp')
+image = cv2.imread('Circles.jpg')
 
-# Convert the image to the HSV color space
-hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+def circles_in_img(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (9, 9), 2)
 
-# Define the lower and upper bounds for the yellow color in HSV
-lower_yellow = np.array([20, 100, 100])
-upper_yellow = np.array([40, 255, 255])
+    circles = cv2.HoughCircles(
+        gray,
+        cv2.HOUGH_GRADIENT,
+        dp=1,
+        minDist=20,
+        param1=50,
+        param2=30,
+        minRadius=0,
+        maxRadius=0,
+    )
 
-# Create a mask to extract only the yellow regions
-mask = cv2.inRange(hsv_image, lower_yellow, upper_yellow)
+    if circles is not None:
+        circles = np.round(circles[0, :]).astype("int")
+        circle_list = []
 
-# Apply Gaussian blur to the mask to reduce noise
-blurred_mask = cv2.GaussianBlur(mask, (9, 9), 2)
+        for (x, y, r) in circles:
+            circle_list.append([x, y, r])
 
-# Use Hough Circle Transform to detect circles in the blurred mask
-circles = cv2.HoughCircles(
-    blurred_mask, cv2.HOUGH_GRADIENT, dp=1, minDist=20, param1=50, param2=30, minRadius=0, maxRadius=0
-)
+        print("Detected circles:")
+        for i, circle in enumerate(circle_list):
+            print(f"Circle {i + 1}: Center = ({circle[0]}, {circle[1]}), Radius = {circle[2]}")
 
-# If circles are found, draw them on the original image
-if circles is not None:
-    circles = np.uint16(np.around(circles))
-    for circle in circles[0, :]:
-        x, y, r = circle[0], circle[1], circle[2]
-        cv2.circle(image, (x, y), r, (0, 255, 0), 2)
+        for (x, y, r) in circles:
+            cv2.circle(img, (x, y), r, (0, 255, 0), 4)  # Green circle
+            cv2.rectangle(img, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)  # Red dot at the center
 
-# Display the original image with detected circles
-cv2.imshow('Yellow Circles Detection', image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+        cv2.imshow("Detected Circles", img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+    else:
+        print("No circles detected in the image.")
+
+circles_in_img(image)
