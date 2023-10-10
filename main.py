@@ -49,6 +49,10 @@ def main():
     r3D_parser.add_argument("--tol", help="Tolerance for rectangle detection", type=float, default=tol)
     r3D_parser.add_argument("--fit", help="Threshold for rectangle fit", type=float, default=fit)
     r3D_parser.set_defaults(func=utils.animate_scene)
+
+    circle_parser = subparsers.add_parser("circles", help="Find cirles in image")
+    circle_parser.set_defaults(func=utils.video_rectangle)
+
     
     args = parser.parse_args()
 

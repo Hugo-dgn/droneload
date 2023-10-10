@@ -311,3 +311,19 @@ def image_path(args):
     window = droneload.pathFinder.Window(corners)
     
     _plot_path(args.T, x0, args.v0, args.a0, args.a1, args.norme_v1, window, args.n_point)
+
+
+
+
+def video_circle(args):
+    
+    cap = cv2.VideoCapture(0)
+    
+    while True:
+        ret, frame = cap.read()
+        frame = droneload.circleDetection.circles_in_img(frame)
+        
+        cv2.imshow('frame', frame)
+        if cv2.waitKey(100) == ord('q'):
+            break
+    cv2.destroyAllWindows()
