@@ -27,9 +27,9 @@ def rectangle_similarity_score(points):
     v3 = (d-c)/l
     v4 = (a-d)/l
 
-    score += 1/abs(np.linalg.det(np.column_stack([v1, v2])))**2
+    score += 1e-3/abs(np.linalg.det(np.column_stack([v1, v2])))**2
     
-    score += (np.linalg.norm(v1)*np.linalg.norm(v3)/(abs(np.dot(v1, v3))+1e-10))**2
-    score += (np.linalg.norm(v2)*np.linalg.norm(v4)/(abs(np.dot(v2, v4))+1e-10))**2
+    score += float(np.cross(v1, v3))/(np.linalg.norm(v1)*np.linalg.norm(v3))
+    score += float(np.cross(v2, v4))/(np.linalg.norm(v2)*np.linalg.norm(v4))
 
     return score, poly
