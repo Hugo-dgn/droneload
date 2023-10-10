@@ -1,2 +1,2 @@
-from droneload.circlesDetection.circles import to_complete
+from droneload.circlesDetection.circles import circles_in_img
 

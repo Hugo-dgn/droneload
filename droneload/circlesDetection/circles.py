@@ -30,13 +30,11 @@ def circles_in_img(img):
             print(f"Circle {i + 1}: Center = ({circle[0]}, {circle[1]}), Radius = {circle[2]}")
 
         for (x, y, r) in circles:
-            cv2.circle(img, (x, y), r, (0, 255, 0), 4)  # Green circle
-            cv2.rectangle(img, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)  # Red dot at the center
+            cv2.circle(img, (x, y), r, (255, 0, 0), 4) 
+            cv2.rectangle(img, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1) 
 
         cv2.imshow("Detected Circles", img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
     else:
         print("No circles detected in the image.")
-
-circles_in_img(image)
