@@ -12,11 +12,11 @@ def circles_in_img(img):
         gray,
         cv2.HOUGH_GRADIENT,
         dp=1,
-        minDist=20,  # Increase minDist to make circles less sensitive
-        param1=10,  # Increase param1 to make edge detection less sensitive
-        param2=100,   # Decrease param2 to make circle center detection less sensitive
-        minRadius=10,  # Adjust minRadius to limit the size range of detected circles
-        maxRadius=200,  # Adjust maxRadius to limit the size range of detected circles
+        minDist=20,  # Augmenter minDist = augmenter sensibilité de détection générale
+        param1=10,  # Augmenter param1 = diminuer sensibilité de détection des bords
+        param2=100,   # Augmenter param2 = augmenter sensibilité de détection des centres
+        minRadius=10,  # minRadius permet de limiter la plage de cerlces détectés
+        maxRadius=200,  # idem : Seuls les cercles tq minRadius < rayon < maxRadius seront detectés
     )
 
     if circles is not None:
