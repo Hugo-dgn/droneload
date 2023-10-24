@@ -76,12 +76,11 @@ def detect_circles_and_measure(img):
         print(real_radii, distances)
 
         font = cv2.FONT_HERSHEY_SIMPLEX
-        for i, (circle_x, circle_y) in enumerate(circle_points):
-            cv2.putText(img, f"R={real_radii:.2f} cm", (circle_x - r, circle_y - r - 10),
-                        font, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
-            cv2.putText(img, f"Distance={distances:.2f} cm", (circle_x - r, circle_y - r + 20),
-                        font, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
+        cv2.putText(img, f"R={real_radii:.2f} cm", (circle_x - r, circle_y - r - 10),
+                    font, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
+        cv2.putText(img, f"Distance={distances:.2f} cm", (circle_x - r, circle_y - r + 20),
+                    font, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
 
-            cv2.circle(img, (x, y), r, (0, 255, 0), 4)
+        cv2.circle(img, (x, y), r, (0, 255, 0), 4)
 
     return circle_list
