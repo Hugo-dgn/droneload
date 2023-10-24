@@ -42,10 +42,10 @@ def detect_circles_and_measure(img):
         gray,
         cv2.HOUGH_GRADIENT,
         dp=1,
-        minDist=20,
-        param1=10,
-        param2=100,
-        minRadius=10,
+        minDist=15,  # Augmenter minDist = augmenter sensibilité générale
+        param1=10,  # Augmenter param1 = diminuer sensibilité de detection des bords
+        param2=100,  # Augmenter param2 = augmenter sensibilité de detection du centre
+        minRadius=10,  # Seuls les cercles tq minDist < rayon < maxDist sont detectes
         maxRadius=200
     )
 
