@@ -1,2 +1,1 @@
-from droneload.circlesDetection.circles import circles_in_img
-
+from droneload.circlesDetection.circles import detect_circles_and_measure

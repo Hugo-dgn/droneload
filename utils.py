@@ -260,7 +260,7 @@ def video_circle(args):
 
     while True:
         ret, frame = cap.read()
-        circles = droneload.circleDetection.circles_in_img(frame)
+        circles = droneload.circleDetection.detect_circles_and_measure(frame)
 
         for (x, y, r) in circles:
             cv2.circle(frame, (x, y), r, (255, 0, 0), 4)
