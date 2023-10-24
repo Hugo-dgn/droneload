@@ -2,18 +2,15 @@ import cv2
 import numpy as np
 import yaml
 
-calibration_file = 'D:\CS_2A\DroneLoadCode\droneload\calibration.yml'
+calibration_file = 'calibration.yml'
 
 real_radius = 2.8  # entrer ici taille reelle du cercle
 
 
 def load_calibration_data():
-    # Charger les données de calibration à partir du fichier calibration.yml
     with open(calibration_file, 'r') as file:
         calib_data = yaml.load(file, Loader=yaml.FullLoader)
 
-    # Accéder aux données de la matrice de caméra (mtx) et de la distorsion (dist)
-    # Accéder au premier élément du tuple (le dictionnaire)
     calib_data = calib_data[0]
     camera_matrix = np.array(calib_data['mtx'])
     distortion_coeff = np.array(calib_data['dist'])
@@ -22,7 +19,7 @@ def load_calibration_data():
 
 
 def calculate_real_radius_and_distance(imgpts, camera_matrix, distortion_coeff):
-    imgpts = np.array(imgpts, dtype=float)  # Convertir en tableau NumPy
+    imgpts = np.array(imgpts, dtype=float)
     angles = np.linspace(0, 2 * np.pi, 10)
     objpts = np.array([[real_radius * np.cos(theta), real_radius *
                       np.sin(theta), 0] for theta in angles], dtype=np.float32)
@@ -54,12 +51,10 @@ def detect_circles_and_measure(img):
 
     if circles is not None:
         circles = np.round(circles[0, :]).astype("int")
-        imgpts = []  # Créez une liste vide pour stocker les coordonnées des cercles
+        imgpts = []
 
         for (x, y, r) in circles:
             circle_list.append([x, y, r])
-
-            # Échantillonnez 10 points le long du contour du cercle
             circle_points = []
             for i in range(10):
                 angle = i * 2 * np.pi / 10
@@ -70,7 +65,6 @@ def detect_circles_and_measure(img):
                 imgpt = np.array([[circle_x, circle_y]], dtype=float)
                 imgpts.append(imgpt)
 
-        # Reste du code pour calculer le rayon réel et la distance
         real_radii, distances = calculate_real_radius_and_distance(
             imgpts, camera_matrix, distortion_coeff)
         print(real_radii, distances)
