@@ -28,6 +28,8 @@ def main():
         "imrect", help="Draw rectangles on image")
     imrect_parser.add_argument("image", help="Image to draw rectangles on")
     imrect_parser.add_argument(
+        "--fit", help="Threshold for rectangle fit", type=float, default=fit)
+    imrect_parser.add_argument(
         "--tol", help="Tolerance for rectangle detection", type=float, default=tol)
     imrect_parser.set_defaults(func=utils.image_rectangle)
 
@@ -46,6 +48,8 @@ def main():
     impath_parser = subparsers.add_parser(
         "impath", help="Find path from image")
     impath_parser.add_argument("image", help="Image to find path on")
+    impath_parser.add_argument(
+        "--fit", help="Threshold for rectangle fit", type=float, default=fit)
     impath_parser.add_argument(
         "--tol", help="Tolerance for rectangle detection", type=float, default=tol)
     impath_parser.add_argument(
@@ -66,14 +70,16 @@ def main():
         "--n_point", help="Number of point to calculate the path", type=int, default=100)
     impath_parser.set_defaults(func=utils.image_path)
 
-    r3D_parser = subparsers.add_parser("r3D", help="Animate path")
-    r3D_parser.add_argument(
+    vpath = subparsers.add_parser("vpath", help="Animate path")
+    vpath.add_argument(
         "--fps", help="Frames per second", type=int, default=30)
-    r3D_parser.add_argument(
+    vpath.add_argument(
         "--tol", help="Tolerance for rectangle detection", type=float, default=tol)
-    r3D_parser.add_argument(
+    vpath.add_argument(
         "--fit", help="Threshold for rectangle fit", type=float, default=fit)
-    r3D_parser.set_defaults(func=utils.animate_scene)
+    vpath.add_argument(
+        "--n_point", help="Number of point to calculate the path", type=int, default=100)
+    vpath.set_defaults(func=utils.animate_scene)
 
     circle_parser = subparsers.add_parser(
         "circles", help="Find cirles in image")

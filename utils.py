@@ -8,8 +8,6 @@ from matplotlib.colors import LogNorm
 
 import droneload
 
-######################################## rectFinder ########################################
-
 
 target_rect_corners = np.array(
     [[0, -7.5, -5],
@@ -68,81 +66,18 @@ def image_rectangle(args):
     droneload.rectFinder.remove_old_rects(10)
 
     for rect in rects:
-        center = rect.center()
-        rect.compute(target_rect)
-
-        droneload.rectFinder.draw_coordinate(
-            frame, center, rect.rvecs, rect.tvecs)
+        rect.define_3D(target_rect_corners)
+        center = rect.center2D()
+        rect.fit(args.fit)
+        pos, retval, rvec, tvec = rect.compute()
+        droneload.rectFinder.draw_coordinate(frame, center, rvec, tvec)
 
     droneload.rectFinder.draw_rectangles(frame, rects)
+    droneload.rectFinder.draw_main_rectangle(frame)
 
     cv2.imshow('frame', frame)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
-######################################## pathFinder ########################################
-
-
-def plot_analyse_direction_constante(Loss, L_loss_lenght, L_loss_max_v, L_id_v_dist, L_max_a, L_min, L_max, T_min, T_max, n_L, n_T):
-    plt.figure()
-
-    plt.imshow(Loss, norm=LogNorm(), extent=[L_min, L_max, T_min, T_max])
-
-    i = np.unravel_index(np.argmin(Loss), Loss.shape)
-
-    print(f"minimal loss = {Loss[i]}")
-    print(f"T = {T_min + (n_T-i[0]-1)*(T_max-T_min)/n_T}")
-    print(f"L = {L_min + i[1]*(L_max-L_min)/n_L}")
-
-    plt.colorbar()
-    plt.xlabel(f"L (m)")
-    plt.ylabel(f"T (s)")
-    plt.title('loss', fontsize=8)
-
-    if L_loss_lenght is not None:
-        plt.figure()
-
-        plt.subplot(2, 2, 1)
-
-        plt.imshow(L_loss_lenght, norm=LogNorm(),
-                   extent=[L_min, L_max, T_min, T_max])
-
-        plt.colorbar()
-        plt.xlabel(f"L (m)")
-        plt.ylabel(f"T (s)")
-        plt.title('loss_lenght', fontsize=8)
-
-        plt.subplot(2, 2, 2)
-
-        plt.imshow(L_loss_max_v, norm=LogNorm(),
-                   extent=[L_min, L_max, T_min, T_max])
-
-        plt.colorbar()
-        plt.xlabel(f"L (m)")
-        plt.ylabel(f"T (s)")
-        plt.title('max_v', fontsize=8)
-
-        plt.subplot(2, 2, 3)
-
-        plt.imshow(L_id_v_dist, norm=LogNorm(),
-                   extent=[L_min, L_max, T_min, T_max])
-
-        plt.colorbar()
-        plt.xlabel(f"L (m)")
-        plt.ylabel(f"T (s)")
-        plt.title('id_dist', fontsize=8)
-
-        plt.subplot(2, 2, 4)
-
-        plt.imshow(L_max_a, norm=LogNorm(), extent=[
-                   L_min, L_max, T_min, T_max])
-
-        plt.colorbar()
-        plt.xlabel(f"L (m)")
-        plt.ylabel(f"T (t)")
-        plt.title('max_a', fontsize=8)
-
-    plt.show()
 
 
 def init_scene():
@@ -192,17 +127,14 @@ def animate_scene(args):
                 window = droneload.pathFinder.Window(target_rect_corners)
 
                 x0 = pos
-                n = window.n * np.sign(np.dot(window.n, window.p-x0))
-                v1 = n
+                x1 = window.p
+                
+                n = window.n * np.sign(np.dot(window.n, window.p-x0)) * 2 * np.linalg.norm(x1-x0)
                 L = np.linalg.norm(window.p-x0)
-                T = 10
-                n_point = 1000
 
-                t, path = droneload.pathFinder.get_path(x0=x0, x1=window.p, v0=[0, 0, 0], v1=v1, a0=[
-                                                        0, 0, 0], a1=[0, 0, 0], L=L, T=T, n_point=n_point)
+                u = droneload.pathFinder.get_path(x0, x1, n, L, args.n_point)
 
-                droneload.pathFinder.draw_path_plt(ax, path)
-                droneload.pathFinder.draw_path_cv(frame, path, rvec, tvec)
+                droneload.pathFinder.draw_path_plt(ax, u)
 
         droneload.rectFinder.draw_scene(ax)
         droneload.rectFinder.draw_rectangles(frame, rects)
@@ -235,31 +167,6 @@ def rectify_ax_lim(ax):
     ax.set_zlim([z_c - delta, z_c + delta])
 
 
-def plot_analyse_total(Loss_angle, n_angle_phi, n_angle_theta):
-    plt.figure()
-
-    plt.imshow(Loss_angle, norm=LogNorm(),
-               extent=[-np.pi, np.pi, -np.pi/2, np.pi/2])
-
-    i = np.unravel_index(np.argmin(Loss_angle), Loss_angle.shape)
-
-    print(f"minimal loss = {Loss_angle[i]}")
-    phi_min = -np.pi + (n_angle_phi-i[0]-1)*(2*np.pi)/n_angle_phi
-    theta_min = -np.pi/2 + i[1]*(np.pi)/n_angle_theta
-    window.p = np.array([np.cos(phi_min)*np.cos(theta_min),
-                        np.sin(phi_min)*np.cos(theta_min), np.sin(theta_min)])
-    print(f"phi = {phi_min}")
-    print(f"theta = {theta_min}")
-    print(f"direction = {window.p}")
-
-    plt.colorbar()
-    plt.xlabel(f"phi (rad)")
-    plt.ylabel(f"theta (rad)")
-    plt.title('loss', fontsize=8)
-
-    plt.show()
-
-
 def plot_path(args):
     corners = target_rect_corners
     window = droneload.pathFinder.Window(corners)
@@ -284,7 +191,7 @@ def plot_path(args):
     ax.set_ylabel('y (m)')
     ax.set_zlabel('z (m)')
 
-    ax.plot3D(u[0, :], u[1, :], u[2, :], 'red')
+    droneload.pathFinder.draw_path_plt(ax, u)
 
     plot_window(window, ax)
     rectify_ax_lim(ax)
@@ -307,10 +214,10 @@ def image_path(args):
 
     if len(rects) == 1:
         rect = rects[0]
-        center = rect.center()
-        retval, rvecs, tvecs, inliers = droneload.rectFinder.get_3D_vecs(
-            target_rect, rect)
-        droneload.rectFinder.draw_coordinate(frame, center, rvecs, tvecs)
+        rect.define_3D(target_rect_corners)
+        center = rect.center2D()
+        rect.fit(args.fit)
+        pos, retval, rvec, tvec = rect.compute()
     else:
         message = "More than 1 rectangle found"
         raise ValueError(message)
@@ -318,16 +225,33 @@ def image_path(args):
     cv2.imshow("frame", frame)
     cv2.waitKey(100)
 
-    corners = target_rect.corners
+    if retval:
+        
+        ax = init_scene()
+        ax.clear()
+        ax.set_xlim([-30, 30])
+        ax.set_ylim([-30, 30])
+        ax.set_zlim([-30, 30])
+        
+        droneload.rectFinder.draw_coordinate(frame, center, rvec, tvec)
 
-    x0 = np.array([0, 0, 0])
+        window = droneload.pathFinder.Window(target_rect_corners)
 
-    corners = droneload.rectFinder.find_pos_3D(corners, tvecs, rvecs)
+        x0 = pos
+        x1 = window.p
+        
+        n = window.n * np.sign(np.dot(window.n, window.p-x0)) * 2 * np.linalg.norm(x1-x0)
+        L = np.linalg.norm(window.p-x0)
 
-    window = droneload.pathFinder.Window(corners)
+        u = droneload.pathFinder.get_path(x0, x1, n, L, args.n_point)
 
-    _plot_path(args.T, x0, args.v0, args.a0, args.a1,
-               args.norme_v1, window, args.n_point)
+        droneload.pathFinder.draw_path_plt(ax, u)
+        plot_window(window, ax)
+        rectify_ax_lim(ax)
+        
+        plt.show()
+    
+    cv2.destroyAllWindows()
 
 
 def video_circle(args):
