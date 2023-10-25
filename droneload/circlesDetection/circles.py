@@ -4,7 +4,7 @@ import yaml
 
 calibration_file = 'calibration.yml'
 
-real_radius = 2.8  # entrer ici taille reelle du cercle
+real_radius = 2.1  # entrer ici taille reelle du cercle
 
 
 def load_calibration_data():
