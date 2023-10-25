@@ -347,3 +347,17 @@ def video_circle(args):
         if cv2.waitKey(100) == ord('q'):
             break
     cv2.destroyAllWindows()
+
+
+def video_qr_code(args):
+
+    cap = cv2.VideoCapture(0)
+
+    while True:
+        ret, frame = cap.read()
+        qr_code = droneload.QRCodeReader.qrCode(frame)
+
+        cv2.imshow('frame', frame)
+        if cv2.waitKey(100) == ord('q'):
+            break
+    cv2.destroyAllWindows()
