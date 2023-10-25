@@ -37,7 +37,8 @@ def detect_circles_and_measure(img):
     camera_matrix, distortion_coeff = load_calibration_data()
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    gray = cv2.GaussianBlur(gray, (9, 9), 2)
+    # (9,9) taille du noyau, 4 = intensité du flou : intensité trop faible (=2) => probleme detection quand on s'approche trop de la camera
+    gray = cv2.GaussianBlur(gray, (9, 9), 4)
     circles = cv2.HoughCircles(
         gray,
         cv2.HOUGH_GRADIENT,
