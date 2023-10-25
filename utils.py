@@ -1,3 +1,4 @@
+import pyzbar.pyzbar as pyzbar
 import numpy as np
 
 import cv2
@@ -260,7 +261,8 @@ def video_circle(args):
 
     while True:
         ret, frame = cap.read()
-        circles = droneload.circleDetection.detect_circles_and_measure(frame)
+        circles = droneload.circleDetection.detect_circles_and_measure(
+            frame)
 
         for (x, y, r) in circles:
             cv2.circle(frame, (x, y), r, (255, 0, 0), 4)
@@ -270,4 +272,25 @@ def video_circle(args):
         cv2.imshow('frame', frame)
         if cv2.waitKey(100) == ord('q'):
             break
+    cv2.destroyAllWindows()
+
+
+def video_qr_code(args):
+    cap = cv2.VideoCapture(0)
+
+    while True:
+        ret, frame = cap.read()
+        decoded_objects = droneload.QRCodeReader.read_qr_code(frame)
+
+        for obj in decoded_objects:
+            points = obj.polygon if len(obj.polygon) > 0 else obj.rect
+            if len(points) == 4:
+                cv2.polylines(frame, [np.array(points, dtype=int)], isClosed=True, color=(
+                    0, 0, 255), thickness=2)
+            print("QR Code Data:", obj.data.decode('utf-8'))
+
+        cv2.imshow('frame', frame)
+        if cv2.waitKey(100) == ord('q'):
+            break
+    cap.release()
     cv2.destroyAllWindows()

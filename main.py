@@ -85,6 +85,10 @@ def main():
         "circles", help="Find cirles in image")
     circle_parser.set_defaults(func=utils.video_circle)
 
+    qr_parser = subparsers.add_parser(
+        "qrcode", help="Read QR codes in image")
+    qr_parser.set_defaults(func=utils.video_qr_code)
+
     args = parser.parse_args()
 
     if hasattr(args, 'func'):

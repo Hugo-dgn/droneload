@@ -1,1 +1,0 @@
-from droneload.circlesDetection.circles import detect_circles_and_measure
