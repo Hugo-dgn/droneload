@@ -1,1 +1,1 @@
-from droneload.circlesDetection.circles import detect_circles_and_measure
+from droneload.circleDetection.circles import detect_circles_and_measure

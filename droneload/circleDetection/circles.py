@@ -38,7 +38,7 @@ def detect_circles_and_measure(img):
 
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # (9,9) taille du noyau, 4 = intensité du flou : intensité trop faible (=2) => probleme detection quand on s'approche trop de la camera
-    gray = cv2.GaussianBlur(gray, (9, 9), 4)
+    gray = cv2.GaussianBlur(gray, (13, 13), 6)
     circles = cv2.HoughCircles(
         gray,
         cv2.HOUGH_GRADIENT,
@@ -68,14 +68,11 @@ def detect_circles_and_measure(img):
 
         real_radii, distances = calculate_real_radius_and_distance(
             imgpts, camera_matrix, distortion_coeff)
-        print(real_radii, distances)
 
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(img, f"R={real_radii:.2f} cm", (circle_x - r, circle_y - r - 10),
                     font, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
         cv2.putText(img, f"Distance={distances:.2f} cm", (circle_x - r, circle_y - r + 20),
                     font, 0.5, (0, 0, 255), 2, cv2.LINE_AA)
-
-        cv2.circle(img, (x, y), r, (0, 255, 0), 4)
 
     return circle_list
