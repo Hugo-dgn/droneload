@@ -28,6 +28,24 @@ def get_contours_canny(image, seuil, kernel_size):
     contours = cv2.dilate(contours, kernel, iterations=1)
     return contours
 
+def get_lines(contours):
+    
+    l = calibration.get_image_size()
+    
+    line_image = np.zeros_like(contours)
+    minLineLength = l/20
+    maxLineGap = l/20
+    threshold = 50
+    lines = cv2.HoughLinesP(contours,rho = 1,theta = 1*np.pi/180,threshold = threshold,minLineLength = minLineLength,maxLineGap = maxLineGap)
+    if lines is None:
+        return line_image
+    for line in lines:
+        for x1,y1,x2,y2 in line:
+            cv2.line(line_image,(x1,y1),(x2,y2),(255,255,255),2)
+    
+    return line_image
+            
+
 def find_rectangles(image, tol):
     contours, _ = cv2.findContours(image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 

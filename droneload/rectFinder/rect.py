@@ -126,6 +126,8 @@ class Rect:
         retval, rvecs, tvecs = cv2.solvePnP(objpts, imgpts, mtx, dist)
 
         pos = (correction_matrice @ tvecs).reshape(3)
+        
+        dist = np.linalg.norm(pos)
     
         return pos, retval, rvecs, tvecs
     
@@ -138,5 +140,5 @@ class Rect:
                 _current_rects[i] = (self, 0, nb_fit+1) 
                 return True
         
-        _current_rects.append((self, 0, 0)) #(rect, time since last fit, successful fit)
+        _current_rects.append((self, 0, 0))
         return False
