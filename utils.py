@@ -31,7 +31,7 @@ def video_contours(args):
             else:
                 contours = droneload.rectFinder.get_contours_sobel(image, seuil=20)
                 
-            cv_contours, _ = cv2.findContours(contours, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            cv_contours, _ = cv2.findContours(contours, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
             cv_contours_frame = frame.copy()
             cv2.drawContours(cv_contours_frame, cv_contours, -1, (0, 255, 0), 2)
 

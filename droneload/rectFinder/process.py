@@ -29,7 +29,7 @@ def get_contours_canny(image, seuil, kernel_size):
     return contours
 
 def find_rectangles(image, tol):
-    contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(image, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 
     rects = []
     for contour in contours:
