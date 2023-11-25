@@ -1,11 +1,7 @@
-import pyzbar.pyzbar as pyzbar
 import numpy as np
 
 import cv2
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
-from matplotlib.colors import LogNorm
-
 
 import droneload
 
