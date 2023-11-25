@@ -14,6 +14,34 @@ target_rect_corners = np.array(
 )
 
 
+def video_contours(args):
+    
+        cap = cv2.VideoCapture(0)
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        droneload.rectFinder.calibrate_image_size(height)
+    
+        while True:
+            ret, frame = cap.read()
+            frame = droneload.rectFinder.undistort(frame)
+    
+            image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+            if args.canny:
+                contours = droneload.rectFinder.get_contours_canny(image, seuil=10, kernel_size=3)
+            else:
+                contours = droneload.rectFinder.get_contours_sobel(image, seuil=20)
+                
+            cv_contours, _ = cv2.findContours(contours, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            cv_contours_frame = frame.copy()
+            cv2.drawContours(cv_contours_frame, cv_contours, -1, (0, 255, 0), 2)
+
+    
+            cv2.imshow('Edge', contours)
+            cv2.imshow("contours", cv_contours_frame)
+            if cv2.waitKey(100) == ord('q'):
+                break
+        cv2.destroyAllWindows()
+
 def video_rectangle(args):
 
     cap = cv2.VideoCapture(0)
@@ -26,7 +54,7 @@ def video_rectangle(args):
 
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        contours = droneload.rectFinder.get_contours_sobel(image)
+        contours = droneload.rectFinder.get_contours_canny(image, seuil=10, kernel_size=3)
         rects = droneload.rectFinder.find_rectangles(contours, tol=args.tol)
 
         droneload.rectFinder.remove_old_rects(10)

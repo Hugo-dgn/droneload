@@ -10,7 +10,7 @@ from droneload.rectFinder.rect import Rect
 sobel_x = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], dtype=np.uint16)
 sobel_y = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]], dtype=np.uint16)
 
-def get_contours_sobel(image, seuil=20):
+def get_contours_sobel(image, seuil):
     gradient_x = scipy.signal.convolve2d(image, sobel_x, mode='same', boundary='symm')
     gradient_y = scipy.signal.convolve2d(image, sobel_y, mode='same', boundary='symm')
 
@@ -19,6 +19,14 @@ def get_contours_sobel(image, seuil=20):
     contours[contours < seuil] = 0
     contours[contours >= seuil] = 255
     return contours.astype(np.uint8)
+
+def get_contours_canny(image, seuil, kernel_size):
+    blur_image = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
+    contours = cv2.Canny(blur_image, seuil, seuil*2)
+    
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_size, kernel_size))
+    contours = cv2.dilate(contours, kernel, iterations=1)
+    return contours
 
 def find_rectangles(image, tol):
     contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)

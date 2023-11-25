@@ -5,14 +5,19 @@ import utils
 
 droneload.rectFinder.calibration("calibration.yml")
 
-tol = 2
-fit = 0.2
+tol = 0.5
+fit = 0.5
 
 
 def main():
     parser = argparse.ArgumentParser(description="droneload tasks")
 
     subparsers = parser.add_subparsers(title="subcommands", dest="subcommand")
+    
+    contours_parser = subparsers.add_parser(
+        "contours", help="Find contours in image")
+    contours_parser.add_argument("--canny", help="Use canny filter", action="store_true")
+    contours_parser.set_defaults(func=utils.video_contours)
 
     vrect_parser = subparsers.add_parser(
         "vrect", help="Draw rectangles on video")
