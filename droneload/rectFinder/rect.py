@@ -109,8 +109,15 @@ class Rect:
         return np.mean(self.corners3D, axis=0)
     
     def similarity(self, rect): 
+        l = get_image_size()
+        
         bestscore, bestfit = _find_best_fit(self.corners2D, rect.corners2D, float('inf'), self.corners2D.copy())
         bestscore, bestfit = _find_best_fit(self.corners2D[::-1], rect.corners2D, bestscore, bestfit)
+        
+        #add the difference of the area of the two quadrilaterals
+        area1 = cv2.contourArea(self.corners2D)
+        area2 = cv2.contourArea(rect.corners2D)
+        bestscore += abs(area1 - area2)/l**2
         
         return bestscore, bestfit
 
