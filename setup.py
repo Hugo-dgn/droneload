@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.1.13'
+VERSION = '0.1.14'
 DESCRIPTION = 'Provide tools to complete the tasks of the drone load competition.'
 
 with open("README.md", "r", encoding="utf-8") as f:
