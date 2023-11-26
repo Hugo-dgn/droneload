@@ -24,7 +24,7 @@ def _find_best_fit(corners2D1, corners2D2, current_best_score, current_best_fit)
     l = get_image_size()
     
     for _ in range(4):
-        score = np.linalg.norm(corners2D1 - corners2D2)/l
+        score = np.sum(np.linalg.norm(corners2D1 - corners2D2, axis=1))/l
         if score < current_best_score:
             current_best_score = score
             current_best_fit = corners2D1.copy()
