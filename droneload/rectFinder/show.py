@@ -27,7 +27,7 @@ def draw_main_rectangle(frame, main_rect=None):
         pts = main_rect.corners2D.reshape((-1, 1, 2)).astype(np.int32)
         cv2.polylines(frame, [pts], True, (0, 0, 0), 2)
         
-        frame = cv2.putText(frame, f"{main_rect.id}", main_rect.corners2D[0], cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+        frame = cv2.putText(frame, f"{main_rect.id}", main_rect.corners2D[0].astype(np.int32), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 
 def draw_coordinate(frame, center_2D, rvecs, tvecs):
     
