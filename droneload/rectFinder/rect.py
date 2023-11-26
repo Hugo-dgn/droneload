@@ -134,16 +134,18 @@ class Rect:
     def fit(self, tol):
         min_score = float('inf')
         best_fit = None
+        index = None
         for i, (rect, last, nb_fit) in enumerate(_current_rects):
             score, fit = self.similarity(rect)
             if score < tol and score < min_score:
                 min_score = score
-                best_fit = fit           
+                best_fit = fit     
+                index = i      
         
         if best_fit is not None:
-            self.corners2D = fit
+            self.corners2D = best_fit
             self.id = rect.id
-            _current_rects[i] = (self, 0, nb_fit+1) 
+            _current_rects[index] = (self, 0, nb_fit+1) 
             return True
         
         _current_rects.append((self, 0, 0))
