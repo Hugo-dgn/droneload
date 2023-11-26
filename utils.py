@@ -67,9 +67,11 @@ def video_rectangle(args):
             pos, retval, rvec, tvec = rect.compute()
             if retval:
                 rect.fit(args.fit)
-            droneload.rectFinder.draw_coordinate(frame, center, rvec, tvec)
+                droneload.rectFinder.draw_coordinate(frame, center, rvec, tvec)
+        
+        current_rects = [rect_repr[0] for rect_repr in droneload.rectFinder.get_current_rects()]
 
-        droneload.rectFinder.draw_rectangles(frame, rects)
+        droneload.rectFinder.draw_rectangles(frame, current_rects)
         droneload.rectFinder.draw_main_rectangle(frame)
 
         cv2.imshow('frame', frame)
