@@ -21,13 +21,13 @@ def draw_rectangles(frame, rects):
         frame = cv2.putText(frame, f"{rect.id}", pts[0][0], cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
 
 def draw_main_rectangle(frame, main_rect=None):
-    if main_rect is not None:
+    if main_rect is None:
         main_rect = get_main_rect()
     if main_rect is not None:
         pts = main_rect.corners2D.reshape((-1, 1, 2)).astype(np.int32)
         cv2.polylines(frame, [pts], True, (0, 0, 0), 2)
         
-        frame = cv2.putText(frame, f"{main_rect.id}", main_rect.corners2D[0], cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+        frame = cv2.putText(frame, f"{main_rect.id}", main_rect.corners2D[0], cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
 
 def draw_coordinate(frame, center_2D, rvecs, tvecs):
     
