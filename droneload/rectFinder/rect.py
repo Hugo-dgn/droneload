@@ -168,6 +168,6 @@ def fit(rects, tol):
     
     for id, (rect, score, index, nb_fit) in fit_dict.items():
         rect.id = id
-        _current_rects[index] = (rect, 0, nb_fit)
+        _current_rects[index] = (rect, 0, nb_fit+1)
     
     
