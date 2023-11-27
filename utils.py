@@ -60,13 +60,13 @@ def video_rectangle(args):
         rects = droneload.rectFinder.find_rectangles(lines, tol=args.tol)
 
         droneload.rectFinder.remove_old_rects(10)
-
+        droneload.rectFinder.fit(rects, args.fit)
+        
         for rect in rects:
             rect.define_3D(target_rect_corners)
             center = rect.center2D()
             pos, retval, rvec, tvec = rect.compute()
             if retval:
-                rect.fit(args.fit)
                 droneload.rectFinder.draw_coordinate(frame, center, rvec, tvec)
         
         current_rects = [rect_repr[0] for rect_repr in droneload.rectFinder.get_current_rects()]

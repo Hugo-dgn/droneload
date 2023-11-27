@@ -5,7 +5,7 @@ import utils
 
 droneload.rectFinder.calibration("calibration.yml")
 
-tol = 0.1
+tol = 0.2
 fit = 0.2
 
 
