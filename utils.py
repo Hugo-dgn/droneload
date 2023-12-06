@@ -26,7 +26,7 @@ def video_contours(args):
             image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             if args.canny:
-                contours = droneload.rectFinder.get_contours_canny(image, seuil=20, kernel_size=3)
+                contours = droneload.rectFinder.get_contours_canny(image, seuil=70, kernel_size=3)
             else:
                 contours = droneload.rectFinder.get_contours_sobel(image, seuil=20)
             

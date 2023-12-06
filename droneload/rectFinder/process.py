@@ -33,8 +33,8 @@ def get_lines(contours):
     l = calibration.get_image_size()
     
     line_image = np.zeros_like(contours)
-    minLineLength = l/20
-    maxLineGap = l/20
+    minLineLength = l/10
+    maxLineGap = l/50
     threshold = 50
     lines = cv2.HoughLinesP(contours,rho = 1,theta = 1*np.pi/180,threshold = threshold,minLineLength = minLineLength,maxLineGap = maxLineGap)
     if lines is None:
