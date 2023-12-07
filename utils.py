@@ -12,6 +12,12 @@ target_rect_corners = np.array(
      [0, 7.5, 5],
      [0, -7.5, 5]], dtype=np.float32)
 
+def contours(args):
+    if args.image is None:
+        video_contours(args)
+    else:
+        image_contours(args)
+
 
 def video_contours(args):
     
@@ -42,6 +48,42 @@ def video_contours(args):
             if cv2.waitKey(100) == ord('q'):
                 break
         cv2.destroyAllWindows()
+
+def image_contours(args):
+    frame = cv2.imread(args.image)
+    frame = droneload.rectFinder.undistort(frame)
+    height, width, _ = frame.shape
+    droneload.rectFinder.calibrate_image_size(height)
+
+    image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    if args.canny:
+        contours = droneload.rectFinder.get_contours_canny(image, seuil=args.seuil, kernel_size=args.ksize)
+    else:
+        contours = droneload.rectFinder.get_contours_sobel(image, seuil=args.seuil)
+    
+    rminLineLength = 1/args.houghlength
+    rmaxLineGap = 1/args.houghgap
+    threshold = args.houghthreshold
+    lines = droneload.rectFinder.get_lines(contours, rminLineLength, rmaxLineGap, threshold)
+        
+    cv_contours, _ = cv2.findContours(lines, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    cv_contours_frame = frame.copy()
+    cv2.drawContours(cv_contours_frame, cv_contours, -1, (0, 255, 0), 2)
+
+    cv2.imshow('Edge', contours)
+    cv2.imshow("contours", cv_contours_frame)
+    cv2.imshow("lines", lines)
+    
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    
+        
+def rectangle(args):
+    if args.image is None:
+        video_rectangle(args)
+    else:
+        image_rectangle(args)
 
 def video_rectangle(args):
 
@@ -88,10 +130,9 @@ def image_rectangle(args):
 
     image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    contours = droneload.rectFinder.get_contours_sobel(image)
-    rects = droneload.rectFinder.find_rectangles(contours, tol=args.tol)
+    contours = droneload.rectFinder.get_contours_canny(image, seuil=20, kernel_size=3)
+    lines = droneload.rectFinder.get_lines(contours)
+    rects = droneload.rectFinder.find_rectangles(lines, tol=args.tol)
 
     droneload.rectFinder.remove_old_rects(10)
 
@@ -109,6 +150,11 @@ def image_rectangle(args):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def path(args):
+    if args.image is None:
+        animate_scene(args)
+    else:
+        image_path(args)
 
 def init_scene():
     fig = plt.figure()
@@ -135,8 +181,9 @@ def animate_scene(args):
 
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        contours = droneload.rectFinder.get_contours_sobel(image)
-        rects = droneload.rectFinder.find_rectangles(contours, tol=args.tol)
+        contours = droneload.rectFinder.get_contours_canny(image, seuil=20, kernel_size=3)
+        lines = droneload.rectFinder.get_lines(contours)
+        rects = droneload.rectFinder.find_rectangles(lines, tol=args.tol)
 
         droneload.rectFinder.remove_old_rects(10)
 

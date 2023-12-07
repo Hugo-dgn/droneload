@@ -21,27 +21,26 @@ def get_contours_sobel(image, seuil):
     return contours.astype(np.uint8)
 
 def get_contours_canny(image, seuil, kernel_size):
-    blur_image = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
-    contours = cv2.Canny(blur_image, seuil, seuil*2)
+    #blur_image = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
+    contours = cv2.Canny(image, seuil, seuil*2)
     
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_size, kernel_size))
     contours = cv2.dilate(contours, kernel, iterations=1)
+    
     return contours
 
-def get_lines(contours):
+def get_lines(contours, rminLineLength, rmaxLineGap, threshold):
     
     l = calibration.get_image_size()
     
     line_image = np.zeros_like(contours)
-    minLineLength = l/20
-    maxLineGap = l/20
-    threshold = 50
+    minLineLength = l*rminLineLength
+    maxLineGap = l*rmaxLineGap
     lines = cv2.HoughLinesP(contours,rho = 1,theta = 1*np.pi/180,threshold = threshold,minLineLength = minLineLength,maxLineGap = maxLineGap)
     if lines is None:
         return line_image
-    for line in lines:
-        for x1,y1,x2,y2 in line:
-            cv2.line(line_image,(x1,y1),(x2,y2),(255,255,255),2)
+    
+    cv2.polylines(line_image, lines.reshape(-1, 2, 2), False, (255,255,255), 1)
     
     return line_image
             

@@ -7,6 +7,12 @@ droneload.rectFinder.calibration("calibration.yml")
 
 tol = 0.2
 fit = 0.2
+seuil = 50
+ksize = 1
+
+hough_length = 10 # increase to detect shotter lines
+hough_gap = 30 # decrease to detect more lines
+hough_threshold = 10
 
 
 def main():
@@ -17,26 +23,35 @@ def main():
     contours_parser = subparsers.add_parser(
         "contours", help="Find contours in image")
     contours_parser.add_argument("--canny", help="Use canny filter", action="store_true")
-    contours_parser.set_defaults(func=utils.video_contours)
+    contours_parser.add_argument(
+        "--seuil", help="Seuil for canny/sobel filter", type=int, default=seuil)
+    contours_parser.add_argument(
+        "--ksize", help="Kernel size for canny/sobel filter", type=int, default=ksize)
+    contours_parser.add_argument(
+        "--houghlength", help="Inverse of the ratio for min lenght line detection", type=float, default=hough_length)
+    contours_parser.add_argument(
+        "--houghgap", help="Inverse of the ratio for max gap line detection", type=float, default=hough_gap)
+    contours_parser.add_argument(
+        "--houghthreshold", help="Threshold for line detection", type=int, default=hough_threshold)
+    contours_parser.add_argument(
+        "--image", help="Image to draw rectangles on", type=str, default=None)
+    contours_parser.set_defaults(func=utils.contours)
 
-    vrect_parser = subparsers.add_parser(
-        "vrect", help="Draw rectangles on video")
-    vrect_parser.add_argument(
+    rect_parser = subparsers.add_parser(
+        "rect", help="Draw rectangles on video")
+    rect_parser.add_argument(
         "--tol", help="Tolerance for rectangle detection", type=float, default=tol)
-    vrect_parser.add_argument(
+    rect_parser.add_argument(
         "--info", help="Show info about the rectangle", action="store_true")
-    vrect_parser.add_argument(
+    rect_parser.add_argument(
         "--fit", help="Threshold for rectangle fit", type=float, default=fit)
-    vrect_parser.set_defaults(func=utils.video_rectangle)
-
-    imrect_parser = subparsers.add_parser(
-        "imrect", help="Draw rectangles on image")
-    imrect_parser.add_argument("image", help="Image to draw rectangles on")
-    imrect_parser.add_argument(
-        "--fit", help="Threshold for rectangle fit", type=float, default=fit)
-    imrect_parser.add_argument(
-        "--tol", help="Tolerance for rectangle detection", type=float, default=tol)
-    imrect_parser.set_defaults(func=utils.image_rectangle)
+    rect_parser.add_argument(
+        "--seuil", help="Seuil for canny/sobel filter", type=int, default=seuil)
+    rect_parser.add_argument(
+        "--ksize", help="Kernel size for canny/sobel filter", type=int, default=ksize)
+    rect_parser.set_defaults(func=utils.rectangle)
+    rect_parser.add_argument(
+                             "--image", help="Image to draw rectangles on", type=str, default=None)
 
     path_parser = subparsers.add_parser(
         "path", help="Find path from parameters")
@@ -50,41 +65,18 @@ def main():
         "--n_point", help="Number of point to calculate the path", type=int, default=100)
     path_parser.set_defaults(func=utils.plot_path)
 
-    impath_parser = subparsers.add_parser(
-        "impath", help="Find path from image")
-    impath_parser.add_argument("image", help="Image to find path on")
-    impath_parser.add_argument(
-        "--fit", help="Threshold for rectangle fit", type=float, default=fit)
-    impath_parser.add_argument(
-        "--tol", help="Tolerance for rectangle detection", type=float, default=tol)
-    impath_parser.add_argument(
-        "--T", help="Time to travel", type=float, default=10)
-    impath_parser.add_argument(
-        "--x0", help="Initial x position", type=float, nargs=3, default=[0, 0, 0])
-    impath_parser.add_argument(
-        "--v0", help="Initial velocity", type=float, nargs=3, default=[0, 0, 0])
-    impath_parser.add_argument(
-        "--a0", help="Initial acceleration", type=float, nargs=3, default=[0, 0, 0])
-    impath_parser.add_argument(
-        "--a1", help="Final acceleration", type=float, nargs=3, default=[0, 0, 0])
-    impath_parser.add_argument(
-        "--norme_v1", help="Final velocity norm", type=float, default=1)
-    impath_parser.add_argument(
-        "--n", help="Normal vector of the window", type=float, nargs=3, default=[0, 1, 0])
-    impath_parser.add_argument(
-        "--n_point", help="Number of point to calculate the path", type=int, default=100)
-    impath_parser.set_defaults(func=utils.image_path)
-
-    vpath = subparsers.add_parser("vpath", help="Animate path")
-    vpath.add_argument(
+    path = subparsers.add_parser("path", help="Animate path")
+    path.add_argument(
         "--fps", help="Frames per second", type=int, default=30)
-    vpath.add_argument(
+    path.add_argument(
         "--tol", help="Tolerance for rectangle detection", type=float, default=tol)
-    vpath.add_argument(
+    path.add_argument(
         "--fit", help="Threshold for rectangle fit", type=float, default=fit)
-    vpath.add_argument(
+    path.add_argument(
         "--n_point", help="Number of point to calculate the path", type=int, default=100)
-    vpath.set_defaults(func=utils.animate_scene)
+    path.add_argument(
+        "--image", help="Image to draw rectangles on", type=str, default=None)
+    path.set_defaults(func=utils.path)
 
     circle_parser = subparsers.add_parser(
         "circles", help="Find cirles in image")
