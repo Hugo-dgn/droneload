@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "main.py",
             "args": [
-                "contours", "--image", "~/Downloads/house.png", "--canny"
+                "rect", "--image", "~/Downloads/house.png"
             ],
             "console": "integratedTerminal"
         }

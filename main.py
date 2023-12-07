@@ -8,7 +8,7 @@ droneload.rectFinder.calibration("calibration.yml")
 tol = 0.2
 fit = 0.2
 seuil = 50
-ksize = 1
+ksize = 3
 
 hough_length = 10 # increase to detect shotter lines
 hough_gap = 30 # decrease to detect more lines
@@ -22,7 +22,6 @@ def main():
     
     contours_parser = subparsers.add_parser(
         "contours", help="Find contours in image")
-    contours_parser.add_argument("--canny", help="Use canny filter", action="store_true")
     contours_parser.add_argument(
         "--seuil", help="Seuil for canny/sobel filter", type=int, default=seuil)
     contours_parser.add_argument(
@@ -49,9 +48,15 @@ def main():
         "--seuil", help="Seuil for canny/sobel filter", type=int, default=seuil)
     rect_parser.add_argument(
         "--ksize", help="Kernel size for canny/sobel filter", type=int, default=ksize)
-    rect_parser.set_defaults(func=utils.rectangle)
+    rect_parser.add_argument(
+        "--houghlength", help="Inverse of the ratio for min lenght line detection", type=float, default=hough_length)
+    rect_parser.add_argument(
+        "--houghgap", help="Inverse of the ratio for max gap line detection", type=float, default=hough_gap)
+    rect_parser.add_argument(
+        "--houghthreshold", help="Threshold for line detection", type=int, default=hough_threshold)
     rect_parser.add_argument(
                              "--image", help="Image to draw rectangles on", type=str, default=None)
+    rect_parser.set_defaults(func=utils.rectangle)
 
     path_parser = subparsers.add_parser(
         "path", help="Find path from parameters")

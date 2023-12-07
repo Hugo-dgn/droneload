@@ -1,12 +1,10 @@
 import scipy
 import numpy as np
-
-import cv2
+import time
 
 import droneload.rectFinder.calibration as calibration
 
 def rectangle_similarity_score(points):
-
     l = calibration.get_image_size()
 
     if len(points) < 4:
@@ -26,19 +24,17 @@ def rectangle_similarity_score(points):
     v2 = (c-b)/l
     v3 = (d-c)/l
     v4 = (a-d)/l
-
-    score += 1e-5/abs(np.linalg.det(np.column_stack([v1, v2])))**2
     
-    nv1 = np.linalg.norm(v1)
-    nv2 = np.linalg.norm(v2)
-    nv3 = np.linalg.norm(v3)
-    nv4 = np.linalg.norm(v4)
+    nv1_carre = np.sum(v1**2)
+    nv2_carre = np.sum(v2**2)
+    nv3_carre = np.sum(v3**2)
+    nv4_carre = np.sum(v4**2)
     
-    cos1 = np.dot(v1, v2)/(nv1*nv2)
-    cos2 = np.dot(v2, v3)/(nv2*nv3)
-    cos3 = np.dot(v3, v4)/(nv3*nv4)
-    cos4 = np.dot(v4, v1)/(nv4*nv1)
+    cos1_carre = np.dot(v1, v2)**2/(nv1_carre*nv2_carre)
+    cos2_carre = np.dot(v2, v3)**2/(nv2_carre*nv3_carre)
+    cos3_carre = np.dot(v3, v4)**2/(nv3_carre*nv4_carre)
+    cos4_carre = np.dot(v4, v1)**2/(nv4_carre*nv1_carre)
     
-    score += cos1**2 + cos2**2 + cos3**2 + cos4**2
+    score += cos1_carre + cos2_carre + cos3_carre + cos4_carre
 
     return score, poly

@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 import cv2
 import matplotlib.pyplot as plt
@@ -57,10 +58,7 @@ def image_contours(args):
 
     image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    if args.canny:
-        contours = droneload.rectFinder.get_contours_canny(image, seuil=args.seuil, kernel_size=args.ksize)
-    else:
-        contours = droneload.rectFinder.get_contours_sobel(image, seuil=args.seuil)
+    contours = droneload.rectFinder.get_contours_canny(image, seuil=args.seuil, kernel_size=args.ksize)
     
     rminLineLength = 1/args.houghlength
     rmaxLineGap = 1/args.houghgap
@@ -123,18 +121,24 @@ def video_rectangle(args):
 
 
 def image_rectangle(args):
+    t0 = time.time()
     frame = cv2.imread(args.image)
     height, width, _ = frame.shape
 
     droneload.rectFinder.calibrate_image_size(height)
+    image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    contours = droneload.rectFinder.get_contours_canny(image, seuil=20, kernel_size=3)
-    lines = droneload.rectFinder.get_lines(contours)
+    contours = droneload.rectFinder.get_contours_canny(image, seuil=args.seuil, kernel_size=args.ksize)
+    rminLineLength = 1/args.houghlength
+    rmaxLineGap = 1/args.houghgap
+    threshold = args.houghthreshold
+    lines = droneload.rectFinder.get_lines(contours, rminLineLength, rmaxLineGap, threshold)
     rects = droneload.rectFinder.find_rectangles(lines, tol=args.tol)
 
     droneload.rectFinder.remove_old_rects(10)
+    
 
     for rect in rects:
         rect.define_3D(target_rect_corners)
@@ -144,8 +148,9 @@ def image_rectangle(args):
         droneload.rectFinder.draw_coordinate(frame, center, rvec, tvec)
 
     droneload.rectFinder.draw_rectangles(frame, rects)
-    droneload.rectFinder.draw_main_rectangle(frame)
 
+    t1 = time.time()
+    print(f"Number of rectangles found: {len(rects)} in {t1-t0} seconds")
     cv2.imshow('frame', frame)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
