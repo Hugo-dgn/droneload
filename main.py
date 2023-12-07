@@ -6,13 +6,13 @@ import utils
 droneload.rectFinder.calibration("calibration.yml")
 
 tol = 0.2
-fit = 0.2
-seuil = 50
+fit = 0.5
+seuil = 30
 ksize = 3
 
 hough_length = 10 # increase to detect shotter lines
-hough_gap = 30 # decrease to detect more lines
-hough_threshold = 10
+hough_gap = 100 # decrease to detect more lines
+hough_threshold = 100
 
 
 def main():
@@ -70,18 +70,18 @@ def main():
         "--n_point", help="Number of point to calculate the path", type=int, default=100)
     path_parser.set_defaults(func=utils.plot_path)
 
-    path = subparsers.add_parser("path", help="Animate path")
-    path.add_argument(
+    sim_parser = subparsers.add_parser("sim", help="Animate path")
+    sim_parser.add_argument(
         "--fps", help="Frames per second", type=int, default=30)
-    path.add_argument(
+    sim_parser.add_argument(
         "--tol", help="Tolerance for rectangle detection", type=float, default=tol)
-    path.add_argument(
+    sim_parser.add_argument(
         "--fit", help="Threshold for rectangle fit", type=float, default=fit)
-    path.add_argument(
+    sim_parser.add_argument(
         "--n_point", help="Number of point to calculate the path", type=int, default=100)
-    path.add_argument(
+    sim_parser.add_argument(
         "--image", help="Image to draw rectangles on", type=str, default=None)
-    path.set_defaults(func=utils.path)
+    sim_parser.set_defaults(func=utils.path)
 
     circle_parser = subparsers.add_parser(
         "circles", help="Find cirles in image")

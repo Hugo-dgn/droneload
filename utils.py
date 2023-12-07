@@ -19,7 +19,6 @@ def contours(args):
     else:
         image_contours(args)
 
-
 def video_contours(args):
     
         cap = cv2.VideoCapture(0)
@@ -32,12 +31,12 @@ def video_contours(args):
     
             image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-            if args.canny:
-                contours = droneload.rectFinder.get_contours_canny(image, seuil=20, kernel_size=3)
-            else:
-                contours = droneload.rectFinder.get_contours_sobel(image, seuil=20)
-            
-            lines = droneload.rectFinder.get_lines(contours)
+            contours = droneload.rectFinder.get_contours_canny(image, seuil=args.seuil, kernel_size=args.ksize)
+    
+            rminLineLength = 1/args.houghlength
+            rmaxLineGap = 1/args.houghgap
+            threshold = args.houghthreshold
+            lines = droneload.rectFinder.get_lines(contours, rminLineLength, rmaxLineGap, threshold)
                 
             cv_contours, _ = cv2.findContours(lines, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
             cv_contours_frame = frame.copy()
@@ -95,8 +94,11 @@ def video_rectangle(args):
 
         image = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        contours = droneload.rectFinder.get_contours_canny(image, seuil=20, kernel_size=3)
-        lines = droneload.rectFinder.get_lines(contours)
+        contours = droneload.rectFinder.get_contours_canny(image, seuil=args.seuil, kernel_size=args.ksize)
+        rminLineLength = 1/args.houghlength
+        rmaxLineGap = 1/args.houghgap
+        threshold = args.houghthreshold
+        lines = droneload.rectFinder.get_lines(contours, rminLineLength, rmaxLineGap, threshold)
         rects = droneload.rectFinder.find_rectangles(lines, tol=args.tol)
 
         droneload.rectFinder.remove_old_rects(10)
@@ -115,7 +117,7 @@ def video_rectangle(args):
         droneload.rectFinder.draw_main_rectangle(frame)
 
         cv2.imshow('frame', frame)
-        if cv2.waitKey(100) == ord('q'):
+        if cv2.waitKey(50) == ord('q'):
             break
     cv2.destroyAllWindows()
 

@@ -6,12 +6,9 @@ from droneload.rectFinder.rectangle_analysis import rectangle_similarity_score
 import droneload.rectFinder.calibration as calibration
 from droneload.rectFinder.rect import Rect
 
-import time
-
 
 def get_contours_canny(image, seuil, kernel_size):
-    blur_image = cv2.GaussianBlur(image, (kernel_size, kernel_size), 0)
-    contours = cv2.Canny(blur_image, seuil, seuil*2)
+    contours = cv2.Canny(image, seuil, 2*seuil)
     
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (kernel_size, kernel_size))
     contours = cv2.dilate(contours, kernel, iterations=1)
@@ -25,11 +22,11 @@ def get_lines(contours, rminLineLength, rmaxLineGap, threshold):
     line_image = np.zeros_like(contours)
     minLineLength = l*rminLineLength
     maxLineGap = l*rmaxLineGap
-    lines = cv2.HoughLinesP(contours,rho = 1,theta = 1*np.pi/180,threshold = threshold,minLineLength = minLineLength,maxLineGap = maxLineGap)
+    lines = cv2.HoughLinesP(contours,rho = 1,theta = np.pi/180,threshold = threshold,minLineLength = minLineLength,maxLineGap = maxLineGap)
     if lines is None:
         return line_image
     
-    cv2.polylines(line_image, lines.reshape(-1, 2, 2), False, (255,255,255), 1)
+    cv2.polylines(line_image, lines.reshape(-1, 2, 2), False, (255,255,255), 2)
     
     return line_image
 
@@ -39,7 +36,7 @@ def find_rectangles(image, tol):
     # keep only the 10 largest contours to maximize performance
     # using a heap to avoid sorting the whole list
     # important to use heapq.nlargest as it is optimized
-    contours = heapq.nlargest(10, contours, key = cv2.contourArea)
+    contours = heapq.nlargest(5, contours, key = cv2.contourArea)
 
     rects = []
     for contour in contours:

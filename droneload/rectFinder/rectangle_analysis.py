@@ -1,24 +1,15 @@
-import scipy
 import numpy as np
-import time
 
 import droneload.rectFinder.calibration as calibration
 
 def rectangle_similarity_score(points):
     l = calibration.get_image_size()
 
-    if len(points) < 4:
+    if len(points) != 4:
         return float('inf'), None
     points = points.squeeze()
-    hull = scipy.spatial.ConvexHull(points)
-    
-    if len(hull.vertices) != 4:
-        return float('inf'), None
-    
     score = 0
-
-    poly = [np.array(points[i]) for i in hull.vertices]
-    a, b, c, d = poly
+    a, b, c, d = points
 
     v1 = (b-a)/l
     v2 = (c-b)/l
@@ -37,4 +28,4 @@ def rectangle_similarity_score(points):
     
     score += cos1_carre + cos2_carre + cos3_carre + cos4_carre
 
-    return score, poly
+    return score, points
