@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 VERSION = '0.2.0'
 DESCRIPTION = 'Provide tools to complete the tasks of the drone load competition.'
 
-with open("README.md", "r", encoding="utf-8") as f:
+with open("docs/README.md", "r", encoding="utf-8") as f:
     LONG_DESCRIPTION = f.read()
 
 with open('requirements.txt') as f:
