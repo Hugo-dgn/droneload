@@ -33,8 +33,11 @@ def _find_best_fit(corners2D1, corners2D2, current_best_score, current_best_fit)
     return current_best_score, current_best_fit
 
 
-def get_current_rects():
-    return _current_rects.copy()
+def get_current_rects(info=False):
+    if info:
+        return _current_rects.copy()
+    else:
+        return [rect for rect, _, _ in _current_rects]
 
 def get_main_rect(min_success=0, max_last_seen = 0):
     """

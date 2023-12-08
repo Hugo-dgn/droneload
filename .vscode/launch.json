@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "main.py",
             "args": [
-                "vrect"
+                "sim"
             ],
             "console": "integratedTerminal"
         }
