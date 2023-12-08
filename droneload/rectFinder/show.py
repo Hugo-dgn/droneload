@@ -49,14 +49,13 @@ def draw_coordinate(frame, center_2D, rvecs, tvecs):
     return frame
     
 
-def draw_scene(ax, pause = 0.001):
+def draw_scene(ax, rects, pause = 0.001):
     
     ax.set_xlabel('x (m)')
     ax.set_ylabel('y (m)')
     ax.set_zlabel('z (m)')
     
-    rects = get_current_rects()
-    for rect, life, nb_fit in rects:
+    for rect in rects:
         corners = rect.corners3D
         window = Window(corners)
         corners = window.corners.copy().T

@@ -58,18 +58,6 @@ def main():
                              "--image", help="Image to draw rectangles on", type=str, default=None)
     rect_parser.set_defaults(func=utils.rectangle)
 
-    path_parser = subparsers.add_parser(
-        "path", help="Find path from parameters")
-    path_parser.add_argument(
-        "--x0", help="Initial x position", type=float, nargs=3, default=[0, 0, 0])
-    path_parser.add_argument(
-        "--n", help="Normal vector of the window", type=float, nargs=3, default=[0, 10, 0])
-    path_parser.add_argument(
-        "--L", help="After window lenght", type=float, default=3)
-    path_parser.add_argument(
-        "--n_point", help="Number of point to calculate the path", type=int, default=100)
-    path_parser.set_defaults(func=utils.plot_path)
-
     sim_parser = subparsers.add_parser("sim", help="Animate path")
     sim_parser.add_argument(
         "--fps", help="Frames per second", type=int, default=30)
@@ -80,8 +68,16 @@ def main():
     sim_parser.add_argument(
         "--n_point", help="Number of point to calculate the path", type=int, default=100)
     sim_parser.add_argument(
-        "--image", help="Image to draw rectangles on", type=str, default=None)
-    sim_parser.set_defaults(func=utils.path)
+        "--seuil", help="Seuil for canny/sobel filter", type=int, default=seuil)
+    sim_parser.add_argument(
+        "--ksize", help="Kernel size for canny/sobel filter", type=int, default=ksize)
+    sim_parser.add_argument(
+        "--houghlength", help="Inverse of the ratio for min lenght line detection", type=float, default=hough_length)
+    sim_parser.add_argument(
+        "--houghgap", help="Inverse of the ratio for max gap line detection", type=float, default=hough_gap)
+    sim_parser.add_argument(
+        "--houghthreshold", help="Threshold for line detection", type=int, default=hough_threshold)
+    sim_parser.set_defaults(func=utils.simulate)
 
     circle_parser = subparsers.add_parser(
         "circles", help="Find cirles in image")

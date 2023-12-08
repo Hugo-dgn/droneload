@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "main.py",
             "args": [
-                "rect", "--image", "~/Downloads/house.png"
+                "sim"
             ],
             "console": "integratedTerminal"
         }
